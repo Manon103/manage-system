@@ -8,6 +8,10 @@ import 'view-design/dist/styles/iview.css';
 import '@/assets/css/main.css';
 import '@/assets/css/common.css';
 
+import getPermission from './permission/permission';
+
+getPermission();
+
 Vue.use(ViewUI);
 
 Vue.prototype.axios = axios;
