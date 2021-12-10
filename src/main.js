@@ -1,12 +1,17 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import Vue from 'vue';
+import App from './App.vue';
+import router from './router';
+import store from './store';
 import axios from 'axios';
+import ViewUI from 'view-design';
+import 'view-design/dist/styles/iview.css';
+import '@/assets/css/main.css';
+import '@/assets/css/common.css';
 
+Vue.use(ViewUI);
 
 Vue.prototype.axios = axios;
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 new Vue({
   router,
