@@ -118,6 +118,11 @@ export default {
   },
   created() {
     this.handleRouteChange();
+    const item = this.findActiveItem(this.activeName);
+    this.$store.commit('SET_TABLIST', [{
+      label: item ? item.label : '',
+      path: this.activeName,
+    }])
   },
   methods: {
     handleRouteChange() {
@@ -126,13 +131,45 @@ export default {
       this.$nextTick(() => {
         this.$refs.expendMenu.updateActiveName();
         this.$refs.expendMenu.updateOpened();
-      })
+      });
     },
     onSelect(name) {
       this.activeName = name;
       this.$router.push({
         name
       })
+      // 激活tab选项
+      const tabList = this.$store.state.tabList;
+      this.$store.commit('SET_ACTIVE_TAB', name);
+      const activeInTab = tabList.find(item => item.path === name);
+      if (activeInTab) {
+        return;
+      }
+      const activeItem = this.findActiveItem(name);
+      const newItem = {
+        label: activeItem ? activeItem.label : '',
+        path: name,
+      }
+      // 更新tabList
+      this.$store.commit('SET_TABLIST', [...tabList, newItem])
+    },
+    findActiveItem(name) {
+      let activeItem;
+      for (let menu of this.menuList) {
+        if (!menu.subMenu) {
+          if (menu.name === name) {
+            activeItem = menu;
+            break;
+          }
+        } else {
+          const _item = menu.subMenu.find(item => item.name === name);
+          if (_item) {
+            activeItem = _item;
+            break;
+          }
+        }
+      }
+      return activeItem;
     }
   }
 };

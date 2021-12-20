@@ -3,6 +3,7 @@
     <sider-bar :isClosed="isClosed"></sider-bar>
     <div class="content" :style="{'width': isClosed ? 'calc(100% - 60px)' : 'calc(100% - 240px)'}">
       <v-header @handelClose="handelClose"></v-header>
+      <tab-nav></tab-nav>
       <div class="inner-content">
         <router-view></router-view>
       </div>
@@ -13,11 +14,13 @@
 <script>
 import VHeader from '../../components/common/Header.vue';
 import SiderBar from '../../components/common/SiderBar.vue';
+import TabNav from '../../components/common/TabNav.vue';
 export default {
   name: 'ManageSystemLayout',
   components: {
     VHeader,
     SiderBar,
+    TabNav,
   },
   data() {
     return {
