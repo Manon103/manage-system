@@ -1,6 +1,6 @@
 <template>
   <div class="tab-nav">
-    <Tabs type="card" closable @on-tab-remove="handleTabRemove" :value="activeTab">
+    <Tabs type="card" closable @on-tab-remove="handleTabRemove" :value="activeTab" @on-click="handleTabClick">
         <TabPane :label="item.label" v-for="item in tabList" :key="item.path" :name="item.path"></TabPane>
     </Tabs>
   </div>
@@ -27,6 +27,15 @@ export default {
       const removeIndex = this.tabList.findIndex(item => item.path === name);
       this.tabList.splice(removeIndex, 1);
       this.$store.commit('SET_TABLIST', this.tabList);
+      if (this.activeTab === name) {
+        this.handleTabClick(this.tabList[0].path);
+      }
+    },
+    handleTabClick(name) {
+      this.$store.commit('SET_ACTIVE_TAB', name);
+      this.$router.push({
+        name
+      });
     }
   }
 }
