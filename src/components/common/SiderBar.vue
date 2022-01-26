@@ -3,21 +3,7 @@
     <div v-show="!isClosed" class='h-full'>
       <div class="sys-name">新奥新智</div>
       <Menu theme="dark" :active-name="activeName" @on-select="onSelect" :open-names="openNames" ref='expendMenu'>
-        <template v-for="item in menuList">
-          <Submenu :key="item.name" :name="item.name" v-if="item.children">
-            <template slot="title">
-              <Icon :type="item.icon" />
-              {{item.meta.title}}
-            </template>
-            <MenuItem v-for="menu in item.children" :key="menu.name" :name="menu.name">
-              {{menu.meta.title}}
-            </MenuItem>
-          </Submenu>
-          <MenuItem :key="item.name" :name="item.name" v-else>
-            <Icon :type="item.icon" />
-            {{item.meta.title}}
-          </MenuItem>
-        </template>
+        <v-menu :menuList="menuList"></v-menu>
       </Menu>
     </div>
     <div v-show="isClosed" class='h-full'>
@@ -25,7 +11,9 @@
         <div class="sys-name" style="width: 60px">新</div>
         <template v-for="item in menuList">
           <MenuItem :key="item.name" :name="item.name">
-            <Icon :type="item.icon" />
+            <svg class="icon" aria-hidden="true">
+              <use :xlink:href="`#icon-${item.meta.icon}`"></use>
+            </svg>
           </MenuItem>
         </template>
       </Menu>
@@ -35,7 +23,9 @@
 
 <script>
 import { getSession } from '../../utils/storage';
+import VMenu from './VMenu.vue';
 export default {
+  components: { VMenu },
   name: 'siderBar',
   props: ['isClosed'],
   data() {
@@ -46,8 +36,8 @@ export default {
           name: 'home',
           meta: {
             title: '首页',
+            icon: 'home',
           },
-          icon: 'ios-home'
         },
       ],
       openNames: [],

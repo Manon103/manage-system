@@ -12,6 +12,9 @@ const baseRoutes = [
     path: '/home',
     name: 'home',
     component: resolve => require(['@/views/common/Layout.vue'], resolve),
+    meta: {
+      icon: 'home'
+    }
   },
   {
     path: '/login',

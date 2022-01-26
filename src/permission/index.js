@@ -23,6 +23,5 @@ export default function setPermission() {
     }
     recursionChildren(children, item);
   })
-  console.log(permission);
   router.addRoutes(permission)
 }
