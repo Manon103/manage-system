@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    tabList: [],
+    tabList: [],  // 页面顶部选中的菜单列表
     activeTab: '',
   },
   mutations: {

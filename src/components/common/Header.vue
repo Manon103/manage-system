@@ -4,16 +4,12 @@
       <img :src="require('@/assets/img/collapse.svg')">
     </div>
     <div class="user">
-      <Dropdown>
+      <Dropdown @on-click="handleOperation">
         <a href="javascript:void(0)">
             <div class="user-header"></div>
         </a>
         <DropdownMenu slot="list">
-            <DropdownItem>驴打滚</DropdownItem>
-            <DropdownItem>炸酱面</DropdownItem>
-            <DropdownItem disabled>豆汁儿</DropdownItem>
-            <DropdownItem>冰糖葫芦</DropdownItem>
-            <DropdownItem divided>北京烤鸭</DropdownItem>
+            <DropdownItem name="logOut">退出登录</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </div>
@@ -21,6 +17,7 @@
 </template>
 
 <script>
+import { clear } from '../../utils/storage';
 export default {
   name: 'vheader',
   data() {
@@ -32,6 +29,14 @@ export default {
     closeSidebar() {
       this.isClosed = !this.isClosed;
       this.$emit('handelClose', this.isClosed);
+    },
+    handleOperation(name) {
+      if (name === 'logOut') {
+        clear();
+        this.$router.push({
+          path: '/login'
+        })
+      }
     }
   }
 }
@@ -46,8 +51,14 @@ export default {
   border-bottom: 1px solid #e8e8e8;
   box-shadow: 0 2px 7px #00000026;
   .collapse {
+    height: 24px;
     img {
       width: 24px;
+    }
+  }
+  .user {
+    /deep/ .ivu-dropdown {
+      display: flex;
     }
   }
   .user-header {

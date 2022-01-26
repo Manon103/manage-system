@@ -4,18 +4,18 @@
       <div class="sys-name">新奥新智</div>
       <Menu theme="dark" :active-name="activeName" @on-select="onSelect" :open-names="openNames" ref='expendMenu'>
         <template v-for="item in menuList">
-          <Submenu :key="item.name" :name="item.name" v-if="item.subMenu">
+          <Submenu :key="item.name" :name="item.name" v-if="item.children">
             <template slot="title">
               <Icon :type="item.icon" />
-              {{item.label}}
+              {{item.meta.title}}
             </template>
-            <MenuItem v-for="menu in item.subMenu" :key="menu.name" :name="menu.name">
-              {{menu.label}}
+            <MenuItem v-for="menu in item.children" :key="menu.name" :name="menu.name">
+              {{menu.meta.title}}
             </MenuItem>
           </Submenu>
           <MenuItem :key="item.name" :name="item.name" v-else>
             <Icon :type="item.icon" />
-            {{item.label}}
+            {{item.meta.title}}
           </MenuItem>
         </template>
       </Menu>
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { getSession } from '../../utils/storage';
 export default {
   name: 'siderBar',
   props: ['isClosed'],
@@ -43,62 +44,10 @@ export default {
       menuList: [
         {
           name: 'home',
-          label: '首页',
+          meta: {
+            title: '首页',
+          },
           icon: 'ios-home'
-        },
-        {
-          name: 'report',
-          label: '周报管理',
-          icon: 'ios-menu',
-          subMenu: [
-            {
-              name: 'reportFill',
-              label: '周报填写',
-              icon: '',
-            },
-            {
-              name: 'reportStatistic',
-              label: '周报统计',
-              icon: '',
-            },
-          ]
-        },
-        {
-          name: 'system',
-          label: '系统管理',
-          icon: 'ios-settings',
-          subMenu: [
-            {
-              name: 'userManage',
-              label: '用户管理',
-              icon: '',
-            },
-            {
-              name: 'roleManage',
-              label: '角色管理',
-              icon: '',
-            },
-            {
-              name: 'menuManage',
-              label: '菜单管理',
-              icon: '',
-            },
-            {
-              name: 'departmentManage',
-              label: '部门管理',
-              icon: '',
-            },
-            {
-              name: 'positionManage',
-              label: '岗位管理',
-              icon: '',
-            },
-            {
-              name: 'noticification',
-              label: '通知公告',
-              icon: '',
-            },
-          ]
         },
       ],
       openNames: [],
@@ -117,14 +66,16 @@ export default {
     }
   },
   created() {
+    this.menuList.push(...getSession('permission'));
     this.handleRouteChange();
     const item = this.findActiveItem(this.activeName);
     this.$store.commit('SET_TABLIST', [{
-      label: item ? item.label : '',
+      label: item ? item.meta.title : '',
       path: this.activeName,
-    }])
+    }]);
   },
   methods: {
+    // 路由变化时，菜单默认展开选中项
     handleRouteChange() {
       this.activeName = this.$route.name;
       this.openNames.push(this.$route.meta.parent);
@@ -147,7 +98,7 @@ export default {
       }
       const activeItem = this.findActiveItem(name);
       const newItem = {
-        label: activeItem ? activeItem.label : '',
+        label: activeItem ? activeItem.meta.title : '',
         path: name,
       }
       // 更新tabList
@@ -156,13 +107,13 @@ export default {
     findActiveItem(name) {
       let activeItem;
       for (let menu of this.menuList) {
-        if (!menu.subMenu) {
+        if (!menu.children) {
           if (menu.name === name) {
             activeItem = menu;
             break;
           }
         } else {
-          const _item = menu.subMenu.find(item => item.name === name);
+          const _item = menu.children.find(item => item.name === name);
           if (_item) {
             activeItem = _item;
             break;
@@ -178,7 +129,12 @@ export default {
 <style lang="less" scoped>
   .sider-bar {
     /deep/ .ivu-menu {
-      height: 100%;
+      height: calc(100% - 50px);
+      overflow-y: auto;
+    }
+    ::-webkit-scrollbar {
+      width: 0;
+      height: 0;
     }
     .sys-name {
       width: 240px;

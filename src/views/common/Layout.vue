@@ -4,7 +4,7 @@
     <div class="content" :style="{'width': isClosed ? 'calc(100% - 60px)' : 'calc(100% - 240px)'}">
       <v-header @handelClose="handelClose"></v-header>
       <tab-nav></tab-nav>
-      <div class="inner-content">
+      <div class="inner-content w-full">
         <router-view></router-view>
       </div>
     </div>
@@ -15,6 +15,7 @@
 import VHeader from '../../components/common/Header.vue';
 import SiderBar from '../../components/common/SiderBar.vue';
 import TabNav from '../../components/common/TabNav.vue';
+import {getList} from '../../api/api';
 export default {
   name: 'ManageSystemLayout',
   components: {
@@ -32,6 +33,10 @@ export default {
     
   },
 
+  async created() {
+
+  },
+
   methods: {
     handelClose(isClosed) {
       this.isClosed = isClosed;
@@ -44,6 +49,9 @@ export default {
 .lay-out {
   .content {
     width: calc(100% - 240px);
+    .inner-content {
+      padding: 12px;
+    }
   }
 }
 </style>
