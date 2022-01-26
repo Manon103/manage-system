@@ -53,22 +53,23 @@ export default {
     },
     $route() {
       this.handleRouteChange();
+    },
+    openNames() {
+      this.$store.commit('SET_OPEN_NAMES', this.openNames);
     }
+  },
+  mounted() {
+    this.openNames = this.$store.state.openNames;
   },
   created() {
     this.menuList.push(...getSession('permission'));
     this.handleRouteChange();
-    const item = this.findActiveItem(this.activeName);
-    this.$store.commit('SET_TABLIST', [{
-      label: item ? item.meta.title : '',
-      path: this.activeName,
-    }]);
   },
   methods: {
     // 路由变化时，菜单默认展开选中项
     handleRouteChange() {
       this.activeName = this.$route.name;
-      this.openNames.push(this.$route.meta.parent);
+      !this.openNames.includes(this.$route.meta.parent) && this.openNames.push(this.$route.meta.parent);
       this.$nextTick(() => {
         this.$refs.expendMenu.updateActiveName();
         this.$refs.expendMenu.updateOpened();
@@ -77,8 +78,8 @@ export default {
     onSelect(name) {
       this.activeName = name;
       this.$router.push({
-        name
-      })
+        name,
+      });
       // 激活tab选项
       const tabList = this.$store.state.tabList;
       this.$store.commit('SET_ACTIVE_TAB', name);
@@ -95,23 +96,21 @@ export default {
       this.$store.commit('SET_TABLIST', [...tabList, newItem])
     },
     findActiveItem(name) {
-      let activeItem;
-      for (let menu of this.menuList) {
-        if (!menu.children) {
-          if (menu.name === name) {
-            activeItem = menu;
-            break;
-          }
-        } else {
-          const _item = menu.children.find(item => item.name === name);
-          if (_item) {
-            activeItem = _item;
-            break;
+      let menu;
+      function recrusionChild(children) {
+        if (children && children.length) {
+          for (let child of children) {
+            if (child.name === name) {
+              menu = child;
+              break;
+            }
+            recrusionChild(child.children);
           }
         }
       }
-      return activeItem;
-    }
+      recrusionChild(this.menuList);
+      return menu;
+    },
   }
 };
 </script>

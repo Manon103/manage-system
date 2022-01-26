@@ -26,7 +26,6 @@ function setCookie(obj, expires) {
 }
 
 function setSession(key, value) {
-  const type = typeof(value);
   window.sessionStorage.setItem(key, JSON.stringify(value));
 }
 
@@ -43,7 +42,7 @@ function removeSession(key) {
   window.sessionStorage.removeItem(key);
 }
 
-function clear(){
+function clearSession(){
   window.sessionStorage.clear();
 }
 
@@ -52,6 +51,6 @@ export {
   setCookie,
   setSession,
   getSession,
-  clear,
+  clearSession,
   removeSession,
 }

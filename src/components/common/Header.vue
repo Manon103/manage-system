@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { clear } from '../../utils/storage';
+import { clearSession } from '../../utils/storage';
 export default {
   name: 'vheader',
   data() {
@@ -32,7 +32,7 @@ export default {
     },
     handleOperation(name) {
       if (name === 'logOut') {
-        clear();
+        clearSession();
         this.$router.push({
           path: '/login'
         })

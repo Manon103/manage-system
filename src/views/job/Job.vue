@@ -1,12 +1,12 @@
 <template>
-  <div class="noticification">
-    公告通知
+  <div>
+    定时任务
   </div>
 </template>
 
 <script>
 export default {
-  name: 'noticification'
+
 }
 </script>
 

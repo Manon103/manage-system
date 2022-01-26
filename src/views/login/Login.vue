@@ -85,7 +85,6 @@ export default {
             this.$Message.success("登录成功，正在进入首页");
             window.sessionStorage.setItem('token', res.token);
             const permissionRes = await getPermission();
-            console.log(permissionRes);
             if (permissionRes.code === 200) {
               setSession('permission', permissionRes.data);
               setPermission();

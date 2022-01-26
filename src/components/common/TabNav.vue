@@ -1,7 +1,12 @@
 <template>
   <div class="tab-nav">
-    <Tabs type="card" closable @on-tab-remove="handleTabRemove" :value="activeTab" @on-click="handleTabClick">
-        <TabPane :label="item.label" v-for="item in tabList" :key="item.path" :name="item.path"></TabPane>
+    <Tabs type="card" @on-tab-remove="handleTabRemove" :value="activeTab" @on-click="handleTabClick">
+        <TabPane 
+          :closable="!(item.path === 'home' && index === 0)" 
+          :label="item.label" v-for="(item, index) in tabList" 
+          :key="item.path" 
+          :name="item.path">
+        </TabPane>
     </Tabs>
   </div>
 </template>
@@ -28,7 +33,16 @@ export default {
       this.tabList.splice(removeIndex, 1);
       this.$store.commit('SET_TABLIST', this.tabList);
       if (this.activeTab === name) {
-        this.handleTabClick(this.tabList[0].path);
+        if (this.tabList.length) {
+          this.handleTabClick(this.tabList[0].path);
+        } else {
+          // 关闭最后一个默认跳转到home
+          this.handleTabClick('home');
+          this.$store.commit('SET_TABLIST', [{
+            label: '首页',
+            path: 'home'
+          }]);
+        }
       }
     },
     handleTabClick(name) {

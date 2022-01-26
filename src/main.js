@@ -19,18 +19,18 @@ if (getSession('permission')) {
   })
 }
 
-// const noLoginWhiteList = ['/login']
-// // 登录信息失效重新跳转到登录页
-// router.beforeEach((to, from, next) => {
-//   if (noLoginWhiteList.includes(to.path) || getSession('token')) {
-//     next()
-//   } else {
-//     Message.error('登录信息失效，请重新登录');
-//     next({
-//       path: '/login'
-//     });
-//   }
-// })
+const noLoginWhiteList = ['/login']
+// 登录信息失效重新跳转到登录页
+router.beforeEach((to, from, next) => {
+  if (noLoginWhiteList.includes(to.path) || getSession('token')) {
+    next()
+  } else {
+    Message.error('登录信息失效，请重新登录');
+    next({
+      path: '/login'
+    });
+  }
+})
 
 Vue.use(ViewUI);
 

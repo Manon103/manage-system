@@ -49,7 +49,7 @@
 
 <script>
 export default {
-  name: 'reportFill',
+  name: 'daily',
   data() {
     const columns = [
       {

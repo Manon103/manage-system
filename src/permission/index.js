@@ -4,18 +4,22 @@ import { getSession } from "../utils/storage";
 // 获取当前用户权限，动态添加路由
 export default function setPermission() {
   const permission = getSession('permission');
-  permission.pop();
   // 目前模拟数据为全部路由，后续从接口获取
   permission.forEach(item => {
     // 把component替换为懒加载
-    item.component = resolve => require(['@/views/common/Layout.vue'], resolve);
+    item.component = () => import('@/views/common/Layout.vue');
     let { children } = item;
     const recursionChildren = (children, parent) => {
       if (children && children.length) {
         children.forEach(child => {
-          // 写在component回掉中会找不到module，于是先引入
-          const comp = import(`@/views/${child.component}.vue`);
-          child.component = () => comp;
+          if (!child.children) {
+            // 写在component回掉中会找不到module，于是先引入
+            const comp = import(`@/views/${child.component}.vue`);
+            child.component = () => comp;
+          } else {
+            // 父级不设置组件需要用render渲染router-view
+            child.component = { render: h => h('router-view') };
+          }
           child.meta.parent = parent.name;
           recursionChildren(child.children, child);
         })
@@ -23,5 +27,5 @@ export default function setPermission() {
     }
     recursionChildren(children, item);
   })
-  router.addRoutes(permission)
+  router.addRoutes(permission);
 }
