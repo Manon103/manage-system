@@ -80,19 +80,18 @@ export default {
           }
           const res = await login({
             username: this.loginForm.username,
-            password: `QWERTYUIOPMNBVCX${password}`
+            password: `QWERTYUIOPMNBVCX${password}` // 后端加密盐值
           });
           if (res.code === 200) {
             this.$Message.success("登录成功，正在进入首页");
-            window.sessionStorage.setItem('token', res.token);
+            setSession('token', res.token);
+            // 获取菜单
             const permissionRes = await getPermission();
             if (permissionRes.code === 200) {
               setSession('permission', permissionRes.data);
               setPermission();
             }
-            if (this.rememberAccount) {
-              setCookie(storage, 5);
-            }
+            this.rememberAccount && setCookie(storage, 5);
             setTimeout(() => {
               this.$router.push('/home');
             }, 200);

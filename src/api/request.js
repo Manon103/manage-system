@@ -1,5 +1,6 @@
 import axios from "axios";
 import router from '../router';
+import { getSession } from "../utils/storage";
 
 const BASE_URL = 'http://139.198.190.129:8889/';
 let errMsg = '';
@@ -15,7 +16,7 @@ request.interceptors.request.use(config => {
   // 一般情况下，登录不需要携带token
   if (!config.url.includes('login')) {
     // 设置请求头
-    config.headers['authorization'] = sessionStorage.getItem('token');
+    config.headers['Authorization'] = getSession('token');
   }
   return config;
 }, err => {

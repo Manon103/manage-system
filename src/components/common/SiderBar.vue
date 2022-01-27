@@ -75,7 +75,7 @@ export default {
       this.$router.push({
         name,
       });
-      // 激活tab选项
+      // 激活tabNav选项
       const tabList = this.$store.state.tabList;
       this.$store.commit('SET_ACTIVE_TAB', name);
       const activeInTab = tabList.find(item => item.path === name);
@@ -92,6 +92,7 @@ export default {
     },
     findActiveItem(name) {
       let menu;
+      // 递归查找选中的项的完整数据
       function recrusionChild(children) {
         if (children && children.length) {
           for (let child of children) {
