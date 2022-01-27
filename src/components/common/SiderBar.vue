@@ -2,7 +2,7 @@
   <div class="sider-bar h-full">
     <div v-show="!isClosed" class='h-full'>
       <div class="sys-name">新奥新智</div>
-      <Menu theme="dark" :active-name="activeName" @on-select="onSelect" :open-names="openNames" ref='expendMenu'>
+      <Menu theme="dark" :active-name="activeName" @on-select="onSelect" :open-names="openNames" accordion ref='expendMenu'>
         <v-menu :menuList="menuList"></v-menu>
       </Menu>
     </div>
@@ -54,12 +54,6 @@ export default {
     $route() {
       this.handleRouteChange();
     },
-    openNames() {
-      this.$store.commit('SET_OPEN_NAMES', this.openNames);
-    }
-  },
-  mounted() {
-    this.openNames = this.$store.state.openNames;
   },
   created() {
     this.menuList.push(...getSession('permission'));
@@ -69,7 +63,8 @@ export default {
     // 路由变化时，菜单默认展开选中项
     handleRouteChange() {
       this.activeName = this.$route.name;
-      !this.openNames.includes(this.$route.meta.parent) && this.openNames.push(this.$route.meta.parent);
+      // 刷新页面默认打开路由对应的菜单
+      this.openNames = this.$router.currentRoute.matched.map(item => item.name);
       this.$nextTick(() => {
         this.$refs.expendMenu.updateActiveName();
         this.$refs.expendMenu.updateOpened();

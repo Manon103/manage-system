@@ -66,7 +66,8 @@ export default {
         this.loginForm = {
           username,
           password: Base64.decode(password),
-        }
+        };
+        this.rememberAccount = true;
       }
     },
     handleSubmit(name) {
