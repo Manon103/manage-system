@@ -12,6 +12,9 @@ import { Message } from 'view-design';
 import setPermission from './permission';
 import { getSession } from './utils/storage';
 
+// 开发者工具报错，等待官方修复
+Vue.extend({}).constructor.prototype.version = Vue.version;
+
 if (getSession('permission')) {
   // 刷新页面时，添加路由
   router.onReady(() => {

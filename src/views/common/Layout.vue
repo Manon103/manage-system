@@ -50,7 +50,7 @@ export default {
   .content {
     width: calc(100% - 240px);
     .inner-content {
-      padding: 12px;
+      padding: 16px;
     }
   }
 }

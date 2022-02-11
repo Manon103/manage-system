@@ -58,6 +58,13 @@ export default {
   created() {
     this.menuList.push(...getSession('permission'));
     this.handleRouteChange();
+    const activeItem = this.findActiveItem(this.$route.name);
+    const newItem = {
+      label: activeItem ? activeItem.meta.title : '',
+      path: activeItem.name,
+    }
+    // 更新tabList
+    this.$store.commit('SET_TABLIST', [newItem])
   },
   methods: {
     // 路由变化时，菜单默认展开选中项
