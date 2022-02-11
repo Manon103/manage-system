@@ -15,7 +15,6 @@
 import VHeader from '../../components/common/Header.vue';
 import SiderBar from '../../components/common/SiderBar.vue';
 import TabNav from '../../components/common/TabNav.vue';
-import {getList} from '../../api/api';
 export default {
   name: 'ManageSystemLayout',
   components: {

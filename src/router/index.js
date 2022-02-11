@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 Vue.use(VueRouter);
+// 路由重复点击报错
 const originalPush = VueRouter.prototype.push;
 
 VueRouter.prototype.push = function push(location) {
