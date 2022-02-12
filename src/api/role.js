@@ -7,3 +7,19 @@ export function getList(params) {
     params,
   })
 }
+
+export function getMenuTree(params) {
+  return request({
+    url: 'system/menu/treeselect',
+    method: 'get',
+    params,
+  })
+}
+
+export function addRole(data) {
+  return request({
+    url: 'system/role',
+    method: 'post',
+    data,
+  })
+}
