@@ -48,6 +48,7 @@ export default {
 .lay-out {
   .content {
     width: calc(100% - 240px);
+    overflow: auto;
     .inner-content {
       padding: 16px;
     }

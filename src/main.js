@@ -15,6 +15,16 @@ import { getSession } from './utils/storage';
 // 开发者工具报错，等待官方修复
 Vue.extend({}).constructor.prototype.version = Vue.version;
 
+Vue.directive('permission', {
+  bind: function (el, binding, vnode) {
+    const { value } = binding;
+    const menuPermission = getSession('menuPermission');
+    if (!menuPermission.includes(value) && menuPermission[0] !== '*:*:*') {
+      el.style.display = 'none';
+    }
+  }
+})
+
 if (getSession('permission')) {
   // 刷新页面时，添加路由
   router.onReady(() => {

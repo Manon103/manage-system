@@ -5,9 +5,10 @@
 </template>
 
 <script>
-import { getMenuTree } from '@/api/role';
+import { getMenuTree, getDeptTree } from '@/api/role';
 export default {
   name: 'vTree',
+  props: ['init', 'type'],
   data() {
     return {
       menuList: [],
@@ -16,10 +17,19 @@ export default {
   },
   created() {
     this.getTreeData();
+    console.log(this.init);
+  },
+  watch: {
+    init(val) {
+      if (val) {
+        // 初始化tree数据及勾选项
+        this.getTreeData();
+      }
+    }
   },
   methods: {
     async getTreeData() {
-      const res = await getMenuTree();
+      const res = this.type === 'menu' ? await getMenuTree() : await getDeptTree();
       if (res.code === 200) {
         this.menuList = res.data;
       } else {

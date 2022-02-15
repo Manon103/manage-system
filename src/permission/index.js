@@ -1,8 +1,10 @@
 import router from "../router";
-import { getSession } from "../utils/storage";
+import { getSession, setSession } from "../utils/storage";
+import { getInfo } from '@/api/login';
+import { Message } from "view-design";
 
 // 获取当前用户权限，动态添加路由
-export default function setPermission() {
+export default async function setPermission() {
   const permission = getSession('permission');
   // 目前模拟数据为全部路由，后续从接口获取
   permission.forEach(item => {
@@ -28,4 +30,14 @@ export default function setPermission() {
     recursionChildren(children, item);
   })
   router.addRoutes(permission);
+  getMenuPermission();
+}
+
+async function getMenuPermission() {
+  const userInfoRes = await getInfo();
+  if (userInfoRes.code === 200) {
+    setSession('menuPermission', userInfoRes.permissions);
+  } else {
+    Message.error(userInfoRes.msg);
+  }
 }

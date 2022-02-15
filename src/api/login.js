@@ -14,3 +14,10 @@ export function getPermission() {
     method: 'get',
   })
 }
+
+export function getInfo() {
+  return request({
+    url: 'getInfo',
+    method: 'get',
+  })
+}
