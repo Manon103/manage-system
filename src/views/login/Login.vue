@@ -78,11 +78,11 @@ export default {
             ...this.loginForm,
             password,
           }
-          const res = await login({
-            username: this.loginForm.username,
-            password: `QWERTYUIOPMNBVCX${password}` // 后端加密盐值
-          });
-          if (res.code === 200) {
+          try {
+            const res = await login({
+              username: this.loginForm.username,
+              password: `QWERTYUIOPMNBVCX${password}` // 后端加密盐值
+            });
             this.$Message.success("登录成功，正在进入首页");
             setSession('token', res.token);
             // 获取菜单
@@ -95,7 +95,7 @@ export default {
             setTimeout(() => {
               this.$router.push('/home');
             }, 200);
-          } else {
+          } catch (e) {
             this.$Message.error(res.msg);
           }
         }

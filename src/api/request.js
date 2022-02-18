@@ -34,6 +34,9 @@ request.interceptors.response.use(response => {
   if (!response.data) {
     return Promise.reject('no data');
   }
+  if (response.data.code !== 200) {
+    return Promise.reject(response.data);
+  }
   return response.data;
 }, err => {
   switch (err.response.status) {
@@ -52,7 +55,7 @@ request.interceptors.response.use(response => {
       errMsg = err;
       break;
   }
-  // 统一提示错误消息如： this.$Message.error(errMsg)
+  // 统一提示错误消息如： Message.error(errMsg)
   return Promise.reject(err);
 })
 

@@ -214,8 +214,8 @@ export default {
   methods: {
     async getData() {
       this.loading = true;
-      const res = await getList(this.searchParams);
-      if (res.code === 200) {
+      try {
+        const res = await getList(this.searchParams);
         const treeData = [];
         if (this.searchParams.deptName || this.searchParams.status === "1") {
           this.deptList = res.data;
@@ -256,7 +256,7 @@ export default {
             this.flatData = res.data;
           }
         }
-      } else {
+      } catch (e) {
         this.$Message.error(res.msg);
       }
       this.init = false;
@@ -272,13 +272,13 @@ export default {
       this.showModal = true;
     },
     async deleteDept(data) {
-      const res = await deleteDept(data.deptId);
-      if (res.code === 200) {
+      try {
+        await deleteDept(data.deptId);
         this.$Message.success('删除成功');
         this.init = true;
         this.getData();
-      } else {
-        this.$Message.error('删除失败');
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
     },
     resetParams() {
@@ -331,14 +331,14 @@ export default {
             status: this.deptForm.status ? '0' : '1',
           };
           delete params.parent;
-          const res = this.opType === "create" ? await addDept(params) : await updateDept(params);
-          if (res.code === 200) {
+          try {
+            this.opType === "create" ? await addDept(params) : await updateDept(params);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.getData();
             this.init = true;
-          } else {
-            this.$Message.error(res.msg);
+          } catch (e) {
+            this.$Message.error(e.msg);
           }
         }
       });

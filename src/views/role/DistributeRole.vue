@@ -191,8 +191,8 @@ export default {
       if (this.searchParams.status === "all") {
         this.searchParams.status = "";
       }
-      const res = await getAuthList(this.searchParams);
-      if (res.code === 200) {
+      try {
+        const res = await getAuthList(this.searchParams);
         this.roleList = res.rows.map((item) => {
           return {
             ...item,
@@ -200,8 +200,8 @@ export default {
           };
         });
         this.total = res.total;
-      } else {
-        this.$Message.error(res.msg);
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
       this.loading = false;
     },
@@ -249,16 +249,16 @@ export default {
         ...this.roleForm,
         status: this.roleForm.status ? '0' : '1',
       };
-      const res = this.isDataPermission 
+      try {
+        const res = this.isDataPermission 
                     ? await updateRoleDataScope(params)
                     : this.opType === 'create' ? await addRole(params) : await updateRole(params);
-      if (res.code === 200) {
         this.$Message.success('操作成功');
         this.showModal = false;
         this.$refs['roleForm'].resetFields();
         this.getData();
-      } else {
-        this.$Message.error(res.msg);
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
     },
     handleModalConfirmCancel() {
@@ -280,8 +280,8 @@ export default {
       this.unauthSelected = data;
     },
     async getUnauthList() {
-      const res = await getUnAuthList(this.unauthParams);
-      if (res.code === 200) {
+      try {
+        const res = await getUnAuthList(this.unauthParams);
         this.unauthList = res.rows.map((item) => {
           return {
             ...item,
@@ -289,8 +289,8 @@ export default {
           };
         });
         this.unauthTotal = res.total;
-      } else {
-        this.$Message.error(res.msg);
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
     }
   },

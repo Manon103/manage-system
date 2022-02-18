@@ -143,6 +143,7 @@
                 @handleIdChange="getMenuIds"
                 :init="initTree"
                 type="menu"
+                :ids="menuIds"
               ></menu-tree>
             </FormItem>
           </template>
@@ -366,8 +367,8 @@ export default {
       if (this.searchParams.status === "all") {
         this.searchParams.status = "";
       }
-      const res = await getList(this.searchParams);
-      if (res.code === 200) {
+      try {
+        const res = await getList(this.searchParams);
         this.roleList = res.rows.map((item) => {
           return {
             ...item,
@@ -375,8 +376,8 @@ export default {
           };
         });
         this.total = res.total;
-      } else {
-        this.$Message.error(res.msg);
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
       this.loading = false;
     },
@@ -400,12 +401,12 @@ export default {
       } else {
         ids = this.selectedData.map((item) => item.roleId);
       }
-      const res = await deleteRole(ids);
-      if (res.code === 200) {
+      try {
+        await deleteRole(ids);
         this.$Message.success("删除成功");
         this.getData();
-      } else {
-        this.$Message.error(res.msg);
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
     },
     resetParams() {
@@ -435,18 +436,18 @@ export default {
             ...this.roleForm,
             status: this.roleForm.status ? "0" : "1",
           };
-          const res = this.isDataPermission
-            ? await updateRoleDataScope(params)
-            : this.opType === "create"
-            ? await addRole(params)
-            : await updateRole(params);
-          if (res.code === 200) {
+          try {
+            this.isDataPermission
+              ? await updateRoleDataScope(params)
+              : this.opType === "create"
+              ? await addRole(params)
+              : await updateRole(params);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.$refs["roleForm"].resetFields();
             this.getData();
-          } else {
-            this.$Message.error(res.msg);
+          } catch (e) {
+            this.$Message.error(e.msg);
           }
         }
       });
@@ -469,8 +470,10 @@ export default {
         status: !parseInt(data.status, 10),
         remark: data.remark,
         dataScope: data.dataScope,
+        roleId: data.roleId,
       };
-      this.initTree = false;
+      this.menuIds =  data.menuIds;
+      this.initTree = true;
     },
     handleTableSelect(selections) {
       this.selectedData = selections;

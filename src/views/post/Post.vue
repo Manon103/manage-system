@@ -52,7 +52,7 @@
           <Badge color="green" text="正常" v-if="row.status === '0'" />
           <Badge color="red" text="停用" v-if="row.status === '1'" />
         </template>
-        <template slot-scope="{ row, index }" slot="action">
+        <template slot-scope="{ row }" slot="action">
             <a class="mr-10" v-permission="'system:post:edit'" @click="editPost(row)">编辑</a>
             <Poptip confirm v-permission="'system:post:remove'" title="确认删除该岗位吗" @on-ok="deletePost(row)">
               <a class="error-link">删除</a>
@@ -238,12 +238,12 @@ export default {
     },
     async getData() {
       this.loading = true;
-      const res = await getList(this.searchParams);
-      if (res.code === 200) {
+      try {
+        const res = await getList(this.searchParams);
         this.postList = res.rows;
         this.total = res.total;
-      } else {
-        this.$Message.error(res.msg);
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
       this.loading = false;
     },
@@ -285,13 +285,13 @@ export default {
             ...this.postForm,
             status: this.postForm.status ? '0' : '1',
           };
-          const res = this.opType === "create" ? await addPost(params) : await updatePost(params);
-          if (res.code === 200) {
+          try {
+            this.opType === "create" ? await addPost(params) : await updatePost(params);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.getData();
-          } else {
-            this.$Message.error(res.msg);
+          } catch (e) {
+            this.$Message.error(e.msg);
           }
         }
       });
@@ -314,12 +314,12 @@ export default {
       if (data) {
         ids = [data.postId];
       }
-      const res = await deletePost(ids);
-      if (res.code === 200) {
+      try {
+        await deletePost(ids);
         this.$Message.success('删除成功');
         this.getData();
-      } else {
-        this.$Message.error('删除失败');
+      } catch (e) {
+        this.$Message.error(e.msg);
       }
     },
     handleTableSelect(selections) {
