@@ -24,7 +24,6 @@
             clearable
             v-model="searchParams.status"
             style="width: 200px"
-            @on-change="getData"
           >
             <Option
               v-for="item in statusList"
@@ -45,8 +44,8 @@
           >
           </DatePicker>
         </div>
-        <Button type="primary" class="mr-20" @click="getData">搜索</Button>
-        <Button @click="resetParams">重置</Button>
+        <Button type="primary" class="mr-20" @click="getData" v-permission="'system:role:query'">搜索</Button>
+        <Button @click="resetParams" v-permission="'system:role:query'">重置</Button>
       </div>
       <div class="mb-20">
         <template v-for="item in operationBtns">

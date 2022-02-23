@@ -2,7 +2,7 @@
   <div class="menu w-full">
     <div class="search-bar">
       <div class="mr-20">
-        <span class="label">菜单名称</span>
+        <span class="label">菜单名称：</span>
         <Input v-model="searchParams.menuName" placeholder="请输入菜单名称" style="width: 200px" />
       </div>
       <div class="mr-20">
@@ -11,7 +11,6 @@
           clearable
           v-model="searchParams.status"
           style="width: 200px"
-          @on-change="getData"
         >
           <Option
             v-for="item in statusList"
@@ -21,8 +20,8 @@
           >
         </Select>
       </div>
-      <Button type="primary" class="mr-20" @click="getData">搜索</Button>
-      <Button @click="resetParams">重置</Button>
+      <Button type="primary" class="mr-20" @click="getData" v-permission="'system:menu:query'">搜索</Button>
+      <Button @click="resetParams" v-permission="'system:menu:query'">重置</Button>
     </div>
     <div class="mb-20">
       <Button 
@@ -34,7 +33,7 @@
         新增
       </Button>
     </div>
-    <div class='table-data'>
+    <div class='table-data relative'>
       <Spin fix v-if="loading"></Spin>
       <Table 
         :columns="columns" 
@@ -45,8 +44,8 @@
           <Badge color="red" text="停用" v-if="row.status === '1'" />
         </template>
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'system:post:edit'" @click="editPost(row)">编辑</a>
-            <Poptip confirm v-permission="'system:post:remove'" title="确认删除该岗位吗" @on-ok="deletePost(row)">
+            <a class="mr-10" v-permission="'system:menu:edit'" @click="editPost(row)">编辑</a>
+            <Poptip confirm v-permission="'system:menu:remove'" title="确认删除该岗位吗" @on-ok="deleteMenu(row)">
               <a class="error-link">删除</a>
             </Poptip>
         </template>
@@ -60,26 +59,88 @@
       :closable="false"
     >
       <Form
-        :model="postForm"
+        :model="menuForm"
         :rules="ruleValidate"
         :label-width="100"
-        ref="postForm"
+        ref="menuForm"
       >
-        <FormItem label="岗位名称:" prop="postName">
-          <Input v-model="postForm.postName"></Input>
+        <FormItem label="上级菜单:" prop="parentId">
+          <Cascader 
+            change-on-select 
+            :data="allTreeData" 
+            v-model="menuForm.parentId">
+          </Cascader>
         </FormItem>
-        <FormItem label="岗位编码:" prop="postCode">
-          <Input v-model="postForm.postCode"></Input>
+        <FormItem label="菜单类型:" prop="menuType">
+          <RadioGroup v-model="menuForm.menuType">
+              <Radio label="M">
+                <span>目录</span>
+              </Radio>
+              <Radio label="C">
+                <span>菜单</span>
+              </Radio>
+              <Radio label="F">
+                <span>按钮</span>
+              </Radio>
+            </RadioGroup>
         </FormItem>
-        <FormItem label="岗位顺序:" prop="postSort">
-          <Input v-model="postForm.postSort"></Input>
+        <FormItem v-if="menuForm.menuType !== 'F'" label="菜单图标:" prop="icon">
+          <icon-select v-model="menuForm.icon"></icon-select>
         </FormItem>
-        <FormItem label="部门状态:" prop="status">
-          <i-switch v-model="postForm.status"> </i-switch>
-        </FormItem>
-        <FormItem label="备注:" prop="remark">
-          <Input v-model="postForm.remark"></Input>
-        </FormItem>
+        <div class="flex">
+          <FormItem label="菜单名称:" prop="menuName" style="flex: 1">
+            <Input v-model="menuForm.menuName"></Input>
+          </FormItem>
+          <FormItem label="显示排序:" prop="orderNum" style="flex: 1">
+            <InputNumber :min="1" v-model="menuForm.orderNum" class="w-full"></InputNumber>
+          </FormItem>
+        </div>
+        <div class="flex" v-if="menuForm.menuType !== 'F'">
+          <FormItem label="是否外链:" prop="isFrame" style="flex: 1">
+            <RadioGroup v-model="menuForm.isFrame">
+              <Radio label="0">
+                <span>是</span>
+              </Radio>
+              <Radio label="1">
+                <span>否</span>
+              </Radio>
+            </RadioGroup>
+          </FormItem>
+          <FormItem label="路由地址:" prop="path" style="flex: 1">
+            <Input v-model="menuForm.path"></Input>
+          </FormItem>
+        </div>
+        <div class="flex">
+          <FormItem v-if="menuForm.menuType === 'C'" label="组件路径:" prop="component" style="flex: 1">
+            <Input :disabled="opType === 'edit'" v-model="menuForm.component"></Input>
+          </FormItem>
+          <FormItem v-if="menuForm.menuType !== 'M'"  label="权限字符:" prop="perms" style="flex: 1">
+            <Input :disabled="opType === 'edit'" v-model="menuForm.perms"></Input>
+          </FormItem>
+        </div>
+        <div class="flex" v-if="menuForm.menuType === 'C'">
+          <FormItem label="路由参数:" prop="query" style="flex: 1">
+            <Input v-model="menuForm.query"></Input>
+          </FormItem>
+          <FormItem label="是否缓存:" prop="isCache" style="flex: 1">
+            <RadioGroup v-model="menuForm.isCache">
+              <Radio label="0">
+                <span>是</span>
+              </Radio>
+              <Radio label="1">
+                <span>否</span>
+              </Radio>
+            </RadioGroup>
+          </FormItem>
+        </div>
+        <div class="flex" v-if="menuForm.menuType !== 'F'">
+          <FormItem label="菜单状态:" prop="status" style="flex: 1">
+            <i-switch v-model="menuForm.status"> </i-switch>
+          </FormItem>
+          <FormItem label="显示状态:" prop="visible" style="flex: 1">
+            <i-switch v-model="menuForm.visible"> </i-switch>
+          </FormItem>
+        </div>
       </Form>
       <template slot="footer">
         <Button type="text" @click="handleModalConfirmCancel">取消</Button>
@@ -91,14 +152,19 @@
 
 <script>
 import { getList, add, update, deleteMenu } from '@/api/menu';
-import { deleteRole } from '../../api/role';
+import IconSelect from '../../components/IconSelect.vue';
 export default {
   name: 'systemMenu',
+  components: {
+    IconSelect,
+  },
   data() {
     const columns = [
       {
         title: '菜单名称',
-        key: 'menuName'
+        key: 'menuName',
+        tree: true,
+        width: 200
       },
       {
         title: '图标',
@@ -123,12 +189,12 @@ export default {
       },
       {
         title: '创建时间',
-        key: 'createTime'
+        key: 'createTime',
+        width: 180
       },
       {
         title: '操作',
         slot: 'action',
-        width: 150,
       }
     ];
     const ruleValidate = {
@@ -198,15 +264,26 @@ export default {
       showModal: false,
       modalTitle: '新增岗位',
       loading: true,
-      postForm: {
-        postName: '',
-        postCode: '',
-        postSort: '',
-        status: true,
+      menuForm: {
+        parentId: [],
+        menuType: 'M',
+        icon: '',
+        orderNum: 1,
+        menuName: '',
+        isFrame: '1',
         remark: '',
+        path: '',
+        status: true,
+        visible: true,
+        isCache: '0',
+        perms: '',
+        query: '',
+        component: '',
       },
       ruleValidate,
       opType: 'create',
+      allTreeData: [],
+      init: true,
     }
   },
   async created() {
@@ -218,14 +295,15 @@ export default {
       try {
         const res = await getList(this.searchParams);
         let treeData = [];
-        const root = res.data.find((item) => item.parentId === 0);
-        if (root) {
-          root._showChildren = true;
-          root.label = root.menuName;
-          root.value = root.menuId;
-          treeData.push(root);
+        const root = res.data.filter((item) => item.parentId === 0);
+        if (root.length) {
+          root.forEach(item => {
+            item.label = item.menuName;
+            item.value = item.menuId;
+          })
+          treeData = [...root];
+          const firstLevelIds = root.map(item => item.menuId);
           res.data.forEach((menu, index) => {
-            const firstLevelIds = treeData.map((item) => item.menuId);
             if (!firstLevelIds.includes(menu.menuId)) {
               const findReuslt = this.findParent(treeData, menu);
               if (!findReuslt) {
@@ -237,21 +315,29 @@ export default {
           this.menuList = treeData;
           if (this.init) {
             // 保存全部的树结构
-            this.allTreeData = treeData;
+            this.allTreeData = [
+              {
+                menuId: 0,
+                label: '主类目',
+                value: 0,
+                children: treeData,
+              }
+            ];
             this.flatData = res.data;
           }
         }
       } catch (e) {
         this.$Message.error(res.msg);
       }
+      this.init = false;
       this.loading = false;
     },
     addMenu() {
       this.showModal = true;
       this.opType = 'create';
-      this.modalTitle = '新增岗位';
-      this.$refs.postForm.resetFields();
-      delete this.postForm.postId;
+      this.modalTitle = '新增菜单';
+      this.$refs.menuForm.resetFields();
+      delete this.menuForm.menuId;
     },
     exportPost() {
       console.log('export');
@@ -268,16 +354,19 @@ export default {
       this.showModal = false;
     },
     handleModalConfirm() {
-      this.$refs["postForm"].validate(async (valid) => {
+      this.$refs["menuForm"].validate(async (valid) => {
         if (valid) {
           const params = {
-            ...this.postForm,
-            status: this.postForm.status ? '0' : '1',
+            ...this.menuForm,
+            status: this.menuForm.status ? '0' : '1',
+            visible: this.menuForm.visible ? '0' : '1',
+            parentId: this.menuForm.parentId[this.menuForm.parentId.length - 1]
           };
           try {
             this.opType === "create" ? await add(params) : await update(params);
             this.$Message.success("操作成功");
             this.showModal = false;
+            this.init = true;
             this.getData();
           } catch (e) {
             this.$Message.error(e.msg);
@@ -288,45 +377,53 @@ export default {
     editPost(data) {
       this.opType = 'edit';
       this.showModal = true;
-      this.postForm = {
-        postName: data.postName,
-        postCode: data.postCode,
-        postSort: data.postSort,
-        status: data.status === '0' ? true : false,
-        remark: data.remark,
-        postId: data.postId,
+      this.menuForm = {
+        ...data,
+        status: data.status === '0' ? true: false,
+        visible: data.visible === '0' ? true: false,
+        orderNum: parseInt(data.orderNum, 10),
+        parentId: data.parentId,
       };
-      this.modalTitle = '编辑岗位';
+      this.getAllParent(data);
+      this.modalTitle = '编辑菜单';
     },
-    async deletePost(data) {
-      let ids = this.selectedData.map(item => item.postId);
-      if (data) {
-        ids = [data.postId];
-      }
+    async deleteMenu(data) {
       try {
-        await deleteMenu(ids);
+        await deleteMenu(data.menuId);
         this.$Message.success('删除成功');
+        this.init = true;
         this.getData();
       } catch (e) {
         this.$Message.error('删除失败');
       }
+    },
+    getAllParent(data) {
+      let dept = data;
+      const superiorDeptId = this.opType === 'create' ? [data.parentId] : [];
+      while (dept && dept.parentId !== null) {
+        superiorDeptId.push(dept.parentId);
+        dept = this.flatData.find(item => item.menuId === dept.parentId);
+      }
+      this.menuForm.parentId = superiorDeptId.reverse();
     },
     findParent(list, menu) {
       if (!menu.parentId) {
         return;
       }
       let result = false;
-      const children = list[0].children;
+      const children = list;
       function recrusionChildren(children) {
-        for (let item of children) {
-          if (item.menuId === menu.parentId) {
-            menu.label = menu.menuName;
-            menu.value = menu.menuId;
-            item.children.push(menu);
-            result = true;
-            break;
+        if (children && children.length) {
+          for (let item of children) {
+            if (item.menuId === menu.parentId) {
+              menu.label = menu.menuName;
+              menu.value = menu.menuId;
+              item.children.push(menu);
+              result = true;
+              break;
+            }
+            recrusionChildren(item.children);
           }
-          recrusionChildren(item.children);
         }
       }
       recrusionChildren(children);
@@ -336,6 +433,10 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped lang="less">
+.menu {
+  /deep/ .ivu-table-wrapper {
+    overflow: initial;
+  }
+}
 </style>
