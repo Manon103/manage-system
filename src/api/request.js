@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Message } from "view-design";
 import router from '../router';
 import { getSession } from "../utils/storage";
 
@@ -56,6 +57,7 @@ request.interceptors.response.use(response => {
       break;
   }
   // 统一提示错误消息如： Message.error(errMsg)
+  Message.error('请求出错');
   return Promise.reject(err);
 })
 

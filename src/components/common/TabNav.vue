@@ -58,6 +58,7 @@ export default {
 <style lang="less" scoped>
 .tab-nav {
   padding: 4px;
+  height: 34px;
   background: #f9f9f9;
   border-bottom: 1px solid #dcdee2;
   box-shadow: 0 2px 7px #3e3e3e26;

@@ -1,9 +1,9 @@
 <template>
   <div class="post w-full">
-    <div class="search-bar">
+    <div class="search-bar" v-permission="'system:post:query'">
       <div class="mr-20">
         <span class="label">岗位编码：</span>
-        <DatePicker type="date" placeholder="请选择岗位编码" style="width: 200px" v-model="searchParams.postCode"></DatePicker>
+        <Input v-model="searchParams.postCode" placeholder="请输入岗位编码" style="width: 200px" />
       </div>
       <div class="mr-20">
         <span class="label">岗位名称：</span>
@@ -24,8 +24,8 @@
           >
         </Select>
       </div>
-      <Button type="primary" class="mr-20" @click="getData" v-permission="'system:post:query'">搜索</Button>
-      <Button @click="resetParams" v-permission="'system:post:query'">重置</Button>
+      <Button type="primary" class="mr-20" @click="getData">搜索</Button>
+      <Button @click="resetParams">重置</Button>
     </div>
     <div class="mb-20">
       <template v-for="item in operationBtns">
@@ -41,7 +41,7 @@
         </Button>
       </template>
     </div>
-    <div class='table-data'>
+    <div class='table-data relative'>
       <Spin fix v-if="loading"></Spin>
       <Table 
         :columns="columns" 

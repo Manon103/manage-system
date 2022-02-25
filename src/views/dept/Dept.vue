@@ -1,6 +1,6 @@
 <template>
   <div class="dept w-full">
-    <div class="search-bar">
+    <div class="search-bar" v-permission="'system:dept:query'">
       <div class="mr-20">
         <span class="label">部门名称：</span>
         <Input
@@ -24,8 +24,8 @@
           >
         </Select>
       </div>
-      <Button type="primary" class="mr-20" @click="getData" v-permission="'system:dept:query'">搜索</Button>
-      <Button @click="resetParams" v-permission="'system:dept:query'">重置</Button>
+      <Button type="primary" class="mr-20" @click="getData">搜索</Button>
+      <Button @click="resetParams">重置</Button>
     </div>
     <div class="mb-20">
       <Button 

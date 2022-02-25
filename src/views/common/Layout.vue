@@ -51,6 +51,7 @@ export default {
     overflow: auto;
     .inner-content {
       padding: 16px;
+      height: calc(100% - 84px);
     }
   }
 }

@@ -1,6 +1,11 @@
 <template>
   <div class="menu-tree">
-    <Tree :data="menuList" show-checkbox @on-check-change="getSelectedNodes"></Tree>
+    <Tree 
+      :data="menuList" 
+      :show-checkbox="select" 
+      @on-check-change="getSelectedNodes" 
+      @on-select-change="handleNodeSelect"
+    ></Tree>
   </div>
 </template>
 
@@ -9,7 +14,30 @@ import { getMenuTree, getDeptTree } from '@/api/role';
 import Vue from 'vue';
 export default {
   name: 'vTree',
-  props: ['init', 'type', 'ids'],
+  props: {
+    init: {     // 是否需要重新刷新列表
+      type: Boolean,
+      default: false,
+    },
+    type: {   // 菜单树还是部门树
+      type: 'menu' | 'dept',
+      default: 'menu',
+    },
+    ids: {  // 已选中的ids
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+    select: {   // 是否展示checkbox
+      type: Boolean,
+      default: true,
+    },
+    expand: {   // 是否默认展开
+      type: Boolean,
+      default: false,
+    }
+  },
   data() {
     return {
       menuList: [],
@@ -17,7 +45,6 @@ export default {
     }
   },
   created() {
-    console.log(this.ids);
     this.getTreeData();
   },
   watch: {
@@ -28,23 +55,21 @@ export default {
       }
     },
     ids: {
-      handler: function (val) { 
+      handler: async function (val) { 
+        await this.getTreeData();
         function recrusionChildren(children) {
           if (children && children.length) {
             children.forEach(item => {
               if (val.includes(item.id)) {
                 Vue.set(item, 'checked', true);
-                item.checked = true;
               } else {
-                Vue.set(item, 'checked', true);
-                item.checked = false;
+                Vue.set(item, 'checked', false);
               }
               recrusionChildren(children.children);
             })
           }
         }
         recrusionChildren(this.menuList);
-        console.log(this.menuList);
       },
       deep: true
     }
@@ -53,25 +78,31 @@ export default {
     async getTreeData() {
       try {
         const res = this.type === 'menu' ? await getMenuTree() : await getDeptTree();
+        if (this.expand) {
+          res.data.forEach(node => {
+            this.setExpand(node);
+          })
+        }
         this.menuList = res.data;
       } catch (e) {
+        console.log(e);
         this.$Message.error(e.msg);
       }
-      // function recrusionChildren(children) {
-      //   if (children && children.length) {
-      //     children.forEach(item => {
-      //       // if (val.includes(item.id)) {
-      //         item.checked = true;
-      //       // }
-      //       recrusionChildren(children.children);
-      //     })
-      //   }
-      // }
-      // recrusionChildren(this.menuList);
     },
     getSelectedNodes(nodes) {
       this.selectedIds = nodes.map(item => item.id);
       this.$emit('handleIdChange', this.selectedIds);
+    },
+    handleNodeSelect(node) {
+      this.$emit('handleNodeSlect', node[0].id);
+    },
+    setExpand(node) {
+      if(node.children && node.children.length) {
+        node.expand = true;
+        node.children.forEach(child => {
+          this.setExpand(child);
+        })
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="menu w-full">
-    <div class="search-bar">
+    <div class="search-bar" v-permission="'system:dept:query'">
       <div class="mr-20">
         <span class="label">菜单名称：</span>
         <Input v-model="searchParams.menuName" placeholder="请输入菜单名称" style="width: 200px" />
@@ -20,8 +20,8 @@
           >
         </Select>
       </div>
-      <Button type="primary" class="mr-20" @click="getData" v-permission="'system:menu:query'">搜索</Button>
-      <Button @click="resetParams" v-permission="'system:menu:query'">重置</Button>
+      <Button type="primary" class="mr-20" @click="getData">搜索</Button>
+      <Button @click="resetParams">重置</Button>
     </div>
     <div class="mb-20">
       <Button 

@@ -1,7 +1,7 @@
 <template>
   <div class="role w-full">
     <template v-if="!showDistributeRole">
-      <div class="search-bar">
+      <div class="search-bar" v-permission="'system:role:query'">
         <div class="mr-20 mb-10">
           <span class="label">角色名称：</span>
           <Input
@@ -44,8 +44,8 @@
           >
           </DatePicker>
         </div>
-        <Button type="primary" class="mr-20" @click="getData" v-permission="'system:role:query'">搜索</Button>
-        <Button @click="resetParams" v-permission="'system:role:query'">重置</Button>
+        <Button type="primary" class="mr-20" @click="getData">搜索</Button>
+        <Button @click="resetParams">重置</Button>
       </div>
       <div class="mb-20">
         <template v-for="item in operationBtns">
@@ -143,6 +143,7 @@
                 :init="initTree"
                 type="menu"
                 :ids="menuIds"
+                :select="true"
               ></menu-tree>
             </FormItem>
           </template>
@@ -156,12 +157,13 @@
                   >{{ item.label }}</Option
                 >
               </Select>
-              <Alert show-icon>特殊情况下，设置为“自定数据权限”</Alert>
+              <Alert class="mt-10" show-icon>特殊情况下，设置为“自定数据权限”</Alert>
             </FormItem>
             <FormItem label="数据权限:" v-if="roleForm.dataScope === '2'">
               <menu-tree
                 @handleIdChange="getPermissionIds"
                 :init="initTree"
+                :select="true"
                 type="depart"
               ></menu-tree>
             </FormItem>
@@ -472,7 +474,6 @@ export default {
         roleId: data.roleId,
       };
       this.menuIds =  data.menuIds;
-      this.initTree = true;
     },
     handleTableSelect(selections) {
       this.selectedData = selections;
