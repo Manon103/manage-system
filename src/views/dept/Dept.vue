@@ -111,6 +111,7 @@
 
 <script>
 import { getList, addDept, updateDept, deleteDept } from "@/api/dept";
+import { getAllParent } from '@/utils/tree';
 export default {
   name: "department",
   data() {
@@ -266,7 +267,7 @@ export default {
       this.opType = 'create';
       this.$refs.deptForm.resetFields();
       if (data) {
-        this.getAllParent(data);
+        this.deptForm.parent = getAllParent(data, 'create', this.flatData);
       }
       this.showModal = true;
     },
@@ -356,17 +357,8 @@ export default {
         parent: [],
         deptId: data.deptId,
       }
-      this.getAllParent(data);
+      this.deptForm.parent = getAllParent(data, 'edit', this.flatData);
     },
-    getAllParent(data) {
-      let dept = data;
-      const superiorDeptId = this.opType === 'create' ? [data.deptId] : [];
-      while (dept.parentId) {
-        superiorDeptId.push(dept.parentId);
-        dept = this.flatData.find(item => item.deptId === dept.parentId);
-      }
-      this.deptForm.parent = superiorDeptId.reverse();
-    }
   },
 };
 </script>

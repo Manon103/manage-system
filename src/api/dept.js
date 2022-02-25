@@ -30,3 +30,10 @@ export function deleteDept(id) {
     method: 'delete',
   })
 }
+
+export function getDeptInfo(id) {
+  return request({
+    url: `system/dept/${id}`,
+    method: 'get',
+  })
+}

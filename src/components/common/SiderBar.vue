@@ -2,7 +2,7 @@
   <div class="sider-bar h-full">
     <div v-show="!isClosed" class='h-full'>
       <div class="sys-name">新奥新智</div>
-      <Menu theme="dark" :active-name="activeName" @on-select="onSelect" :open-names="openNames" accordion ref='expendMenu'>
+      <Menu theme="dark" :active-name="activeName" @on-select="onSelect" :open-names="openNames" ref='expendMenu'>
         <v-menu :menuList="menuList"></v-menu>
       </Menu>
     </div>

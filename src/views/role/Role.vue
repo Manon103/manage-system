@@ -142,7 +142,7 @@
                 @handleIdChange="getMenuIds"
                 :init="initTree"
                 type="menu"
-                :ids="menuIds"
+                :ids="curMenuIds"
                 :select="true"
               ></menu-tree>
             </FormItem>
@@ -345,6 +345,7 @@ export default {
       ],
       permissionIds: [],
       showDistributeRole: false,
+      curMenuIds: [],
     };
   },
   components: {
@@ -461,6 +462,7 @@ export default {
       this.menuIds = ids;
     },
     editRole(data) {
+      this.curMenuIds =  data.menuIds;
       this.modalTitle = "编辑角色";
       this.opType = "edit";
       this.showModal = true;
@@ -473,7 +475,6 @@ export default {
         dataScope: data.dataScope,
         roleId: data.roleId,
       };
-      this.menuIds =  data.menuIds;
     },
     handleTableSelect(selections) {
       this.selectedData = selections;

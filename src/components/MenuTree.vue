@@ -65,7 +65,7 @@ export default {
               } else {
                 Vue.set(item, 'checked', false);
               }
-              recrusionChildren(children.children);
+              recrusionChildren(item.children);
             })
           }
         }
