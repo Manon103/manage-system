@@ -1,28 +1,17 @@
 <template>
-  <div class="notice w-full">
-    <div class="search-bar" v-permission="'system:notice:query'">
+  <div class="product w-full">
+    <div class="search-bar" v-permission="'system:product:query'">
       <div class="mr-20">
-        <span class="label">公告标题：</span>
-        <Input v-model="searchParams.noticeTitle" placeholder="请输入公告标题" style="width: 200px" />
+        <span class="label">业务域名称：</span>
+        <Input v-model="searchParams.productName" style="width: 200px" />
       </div>
       <div class="mr-20">
-        <span class="label">操作人员：</span>
-        <Input v-model="searchParams.createBy" placeholder="请输入操作人员" style="width: 200px" />
+        <span class="label">业务域编码：</span>
+        <Input v-model="searchParams.productCode" style="width: 200px" />
       </div>
       <div class="mr-20">
-        <span class="label">类型：</span>
-        <Select
-          clearable
-          v-model="searchParams.noticeType"
-          style="width: 200px"
-        >
-          <Option
-            v-for="item in typeList"
-            :value="item.value"
-            :key="item.value"
-            >{{ item.label }}</Option
-          >
-        </Select>
+        <span class="label">负责人：</span>
+        <Input v-model="searchParams.productManagers" style="width: 200px" />
       </div>
       <Button type="primary" class="mr-20" @click="getData">搜索</Button>
       <Button @click="resetParams">重置</Button>
@@ -46,18 +35,14 @@
       <Table 
         :columns="columns" 
         @on-selection-change="handleTableSelect"
-        :data="noticeList" >
+        :data="productList" >
         <template slot-scope="{ row }" slot="status">
           <Badge color="green" text="正常" v-if="row.status === '0'" />
           <Badge color="red" text="停用" v-if="row.status === '1'" />
         </template>
-        <template slot-scope="{ row }" slot="noticeType">
-          <Tag color="orange" v-if="row.noticeType === '1'">通知</Tag>
-          <Tag color="green" v-if="row.noticeType === '2'">公告</Tag>
-        </template>
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'system:notice:edit'" @click="editNotice(row)">编辑</a>
-            <Poptip confirm v-permission="'system:notice:remove'" title="确认删除该公告吗" @on-ok="deleteNotice(row)">
+            <a class="mr-10" v-permission="'system:product:edit'" @click="editProduct(row)">编辑</a>
+            <Poptip confirm v-permission="'system:product:remove'" title="确认删除该业务域吗" @on-ok="deleteProduct(row)">
               <a class="error-link">删除</a>
             </Poptip>
         </template>
@@ -73,37 +58,24 @@
     <Modal
       v-model="showModal"
       :title="modalTitle"
-      width="680"
+      width="600"
       :loading="true"
       :closable="false"
     >
       <Form
-        :model="noticeForm"
+        :model="productFrom"
         :rules="ruleValidate"
-        :label-width="100"
-        ref="noticeForm"
+        :label-width="120"
+        ref="productFrom"
       >
-        <FormItem label="公告标题:" prop="noticeTitle">
-          <Input v-model="noticeForm.noticeTitle"></Input>
+        <FormItem label="业务域名称:" prop="productName">
+          <Input v-model="productFrom.productName"></Input>
         </FormItem>
-        <FormItem label="公告类型:" prop="noticeType">
-          <Select
-            clearable
-            v-model="noticeForm.noticeType"
-          >
-            <Option
-              v-for="item in typeList"
-              :value="item.value"
-              :key="item.value"
-              >{{ item.label }}</Option
-            >
-          </Select>
+        <FormItem label="业务域编码:" prop="productCode">
+          <Input v-model="productFrom.productCode"></Input>
         </FormItem>
-        <FormItem label="状态:" prop="status">
-          <i-switch v-model="noticeForm.status"> </i-switch>
-        </FormItem>
-        <FormItem label="内容:" prop="noticeContent">
-          <v-editor :content="noticeForm.noticeContent" @changeEditorContent="handleContentChange"></v-editor>
+        <FormItem label="业务域负责人:" prop="productManager">
+          <Input v-model="productFrom.productManager"></Input>
         </FormItem>
       </Form>
       <template slot="footer">
@@ -115,13 +87,9 @@
 </template>
 
 <script>
-import { getList, addNotice, updateNotice, deleteNotice } from '@/api/notice';
-import MavonEditor from '../../components/MavonEditor.vue';
+import { getList, addProduct, updateProduct, deleteProduct } from '@/api/product';
 export default {
-  name: 'notice',
-  components: {
-    VEditor: MavonEditor,
-  },
+  name: 'post',
   data() {
     const columns = [
       {
@@ -130,32 +98,16 @@ export default {
         align: 'center'
       },
       {
-        title: '序号',
-        key: 'noticeId'
+        title: '业务域名称',
+        key: 'productName'
       },
       {
-        title: '公告标题',
-        key: 'noticeTitle',
-        minWidth: 200
+        title: '业务域编码',
+        key: 'productCode'
       },
       {
-        title: '公告类型',
-        key: 'noticeType',
-        slot: 'noticeType',
-      },
-      {
-        title: '创建者',
-        key: 'createBy'
-      },
-      {
-        title: '创建时间',
-        key: 'createTime',
-        width: 180,
-      },
-      {
-        title: '状态',
-        key: 'status',
-        slot: 'status',
+        title: '负责人',
+        key: 'productManager'
       },
       {
         title: '操作',
@@ -164,26 +116,33 @@ export default {
       }
     ];
     const ruleValidate = {
-      noticeTitle: [
+      productName: [
         {
           required: true,
           message: "岗位名称不能为空",
           trigger: "blur",
         },
       ],
-      noticeType: [
+      productCode: [
         {
           required: true,
           message: "岗位编码不能为空",
           trigger: "blur",
         },
       ],
+      productManager: [
+        {
+          required: true,
+          message: "岗位排序不能为空",
+          trigger: "blur",
+        },
+      ],
     };
     return {
       searchParams: {
-        noticeTitle: '',
-        noticeType: '',
-        createBy: '',
+        productCode: '',
+        productName: '',
+        productManagers: [],
         pageSize: 10,
         pageNum: 1,
       },
@@ -193,37 +152,33 @@ export default {
           icon: 'md-add',
           label: '添加',
           key: 'add',
-          permission: 'system:notice:add'
+          permission: 'system:product:add'
+        },
+        {
+          type: 'warning',
+          icon: 'md-download',
+          label: '导出',
+          key: 'export',
+          permission: 'system:product:export'
         },
         {
           type: 'error',
           icon: 'md-close',
           label: '删除',
           key: 'delete',
-          permission: 'system:notice:remove'
+          permission: 'system:product:remove'
         },
       ],
       columns,
-      noticeList: [],
+      productList: [],
       total: 0,
-      typeList: [
-        {
-          label: '通知',
-          value: '1',
-        },
-        {
-          label: '公告',
-          value: '2',
-        },
-      ],
       showModal: false,
-      modalTitle: '添加公告',
+      modalTitle: '新增岗位',
       loading: true,
-      noticeForm: {
-        noticeTitle: '',
-        noticeType: '',
-        noticeContent: '',
-        status: true,
+      productFrom: {
+        productName: '',
+        productCode: '',
+        productManager: '',
       },
       ruleValidate,
       opType: 'create',
@@ -236,8 +191,9 @@ export default {
   methods: {
     handleOperationClick(key) {
       const map = {
-        add: 'addNotice',
-        delete: 'deleteNotice',
+        add: 'addProduct',
+        export: 'exportProduct',
+        delete: 'deleteProduct',
       }
       this[map[key]]();
     },
@@ -245,28 +201,28 @@ export default {
       this.loading = true;
       try {
         const res = await getList(this.searchParams);
-        this.noticeList = res.rows;
+        this.productList = res.rows;
         this.total = res.total;
       } catch (e) {
         this.$Message.error(e.msg);
       }
       this.loading = false;
     },
-    addNotice() {
+    addProduct() {
       this.showModal = true;
       this.opType = 'create';
-      this.modalTitle = '添加公告';
-      this.$refs.noticeForm.resetFields();
-      delete this.noticeForm.noticeId;
+      this.modalTitle = '新增业务域';
+      this.$refs.productFrom.resetFields();
+      delete this.productFrom.id;
     },
-    exportPost() {
+    exportProduct() {
       console.log('export');
     },
     resetParams() {
       this.searchParams = {
-        noticeTitle: '',
-        noticeType: '',
-        createBy: '',
+        postCode: '',
+        postName: '',
+        status: '',
         pageNum: 1,
       };
       this.getData();
@@ -283,14 +239,10 @@ export default {
       this.showModal = false;
     },
     handleModalConfirm() {
-      this.$refs["noticeForm"].validate(async (valid) => {
+      this.$refs["productFrom"].validate(async (valid) => {
         if (valid) {
-          const params = {
-            ...this.noticeForm,
-            status: this.noticeForm.status ? '0' : '1',
-          };
           try {
-            this.opType === "create" ? await addNotice(params) : await updateNotice(params);
+            this.opType === "create" ? await addProduct(this.productFrom) : await updateProduct(this.productFrom);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.getData();
@@ -300,22 +252,19 @@ export default {
         }
       });
     },
-    editNotice(data) {
+    editProduct(data) {
       this.opType = 'edit';
       this.showModal = true;
-      this.noticeForm = {
-        ...data,
-        status: data.status === '0' ? true : false,
-      };
-      this.modalTitle = '编辑公告';
+      this.productFrom = {...data};
+      this.modalTitle = '编辑业务域';
     },
-    async deleteNotice(data) {
-      let ids = this.selectedData.map(item => item.noticeId);
+    async deleteProduct(data) {
+      let ids = this.selectedData.map(item => item.id);
       if (data) {
-        ids = [data.noticeId];
+        ids = [data.id];
       }
       try {
-        await deleteNotice(ids);
+        await deleteProduct(ids);
         this.$Message.success('删除成功');
         this.getData();
       } catch (e) {
@@ -325,9 +274,6 @@ export default {
     handleTableSelect(selections) {
       this.selectedData = selections;
     },
-    handleContentChange(content) {
-      this.noticeForm.noticeContent = content;
-    }
   }
 }
 </script>

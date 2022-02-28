@@ -40,24 +40,24 @@ request.interceptors.response.use(response => {
   }
   return response.data;
 }, err => {
-  switch (err.response.status) {
-    case 401:
-      errMsg = '请先登录';
-      router.replace('/login');
-      break;
-    case 403:
-      errMsg = '登录已失效，请重新登录';
-      router.replace('/login');
-      break;
-    case 404:
-      errMsg = '请求不存在';
-      break;
-    default:
-      errMsg = err;
-      break;
+  if (err.response && err.response.status) {
+    switch (err.response.status) {
+      case 401:
+        errMsg = '请先登录';
+        router.replace('/login');
+        break;
+      case 403:
+        errMsg = '登录已失效，请重新登录';
+        router.replace('/login');
+        break;
+      case 404:
+        errMsg = '请求不存在';
+        break;
+      default:
+        errMsg = err;
+        break;
+    }
   }
-  // 统一提示错误消息如： Message.error(errMsg)
-  Message.error('请求出错');
   return Promise.reject(err);
 })
 

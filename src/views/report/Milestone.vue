@@ -1,23 +1,39 @@
 <template>
-  <div class="notice w-full">
-    <div class="search-bar" v-permission="'system:notice:query'">
+  <div class="milestone w-full">
+    <div class="search-bar" v-permission="'system:milestone:query'">
       <div class="mr-20">
-        <span class="label">公告标题：</span>
-        <Input v-model="searchParams.noticeTitle" placeholder="请输入公告标题" style="width: 200px" />
-      </div>
-      <div class="mr-20">
-        <span class="label">操作人员：</span>
-        <Input v-model="searchParams.createBy" placeholder="请输入操作人员" style="width: 200px" />
-      </div>
-      <div class="mr-20">
-        <span class="label">类型：</span>
+        <span class="label">项目名称：</span>
         <Select
           clearable
-          v-model="searchParams.noticeType"
+          v-model="searchParams.projectId"
           style="width: 200px"
         >
           <Option
-            v-for="item in typeList"
+            v-for="item in projectList"
+            :value="item.value"
+            :key="item.value"
+            >{{ item.label }}</Option
+          >
+        </Select>
+        <Input v-model="searchParams.projectId" placeholder="请输入岗位编码" style="width: 200px" />
+      </div>
+      <div class="mr-20">
+        <span class="label">负责人：</span>
+        <Input v-model="searchParams.milesManager" placeholder="请输入岗位名称" style="width: 200px" />
+      </div>
+      <div class="mr-20">
+        <span class="label">内容：</span>
+        <Input v-model="searchParams.milesContent" placeholder="请输入岗位名称" style="width: 200px" />
+      </div>
+      <div class="mr-20">
+        <span class="label">状态：</span>
+        <Select
+          clearable
+          v-model="searchParams.status"
+          style="width: 200px"
+        >
+          <Option
+            v-for="item in statusList"
             :value="item.value"
             :key="item.value"
             >{{ item.label }}</Option
@@ -46,18 +62,14 @@
       <Table 
         :columns="columns" 
         @on-selection-change="handleTableSelect"
-        :data="noticeList" >
+        :data="postList" >
         <template slot-scope="{ row }" slot="status">
           <Badge color="green" text="正常" v-if="row.status === '0'" />
           <Badge color="red" text="停用" v-if="row.status === '1'" />
         </template>
-        <template slot-scope="{ row }" slot="noticeType">
-          <Tag color="orange" v-if="row.noticeType === '1'">通知</Tag>
-          <Tag color="green" v-if="row.noticeType === '2'">公告</Tag>
-        </template>
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'system:notice:edit'" @click="editNotice(row)">编辑</a>
-            <Poptip confirm v-permission="'system:notice:remove'" title="确认删除该公告吗" @on-ok="deleteNotice(row)">
+            <a class="mr-10" v-permission="'system:post:edit'" @click="editPost(row)">编辑</a>
+            <Poptip confirm v-permission="'system:post:remove'" title="确认删除该岗位吗" @on-ok="deletePost(row)">
               <a class="error-link">删除</a>
             </Poptip>
         </template>
@@ -73,37 +85,30 @@
     <Modal
       v-model="showModal"
       :title="modalTitle"
-      width="680"
+      width="600"
       :loading="true"
       :closable="false"
     >
       <Form
-        :model="noticeForm"
+        :model="postForm"
         :rules="ruleValidate"
         :label-width="100"
-        ref="noticeForm"
+        ref="postForm"
       >
-        <FormItem label="公告标题:" prop="noticeTitle">
-          <Input v-model="noticeForm.noticeTitle"></Input>
+        <FormItem label="岗位名称:" prop="postName">
+          <Input v-model="postForm.postName"></Input>
         </FormItem>
-        <FormItem label="公告类型:" prop="noticeType">
-          <Select
-            clearable
-            v-model="noticeForm.noticeType"
-          >
-            <Option
-              v-for="item in typeList"
-              :value="item.value"
-              :key="item.value"
-              >{{ item.label }}</Option
-            >
-          </Select>
+        <FormItem label="岗位编码:" prop="postCode">
+          <Input v-model="postForm.postCode"></Input>
         </FormItem>
-        <FormItem label="状态:" prop="status">
-          <i-switch v-model="noticeForm.status"> </i-switch>
+        <FormItem label="岗位顺序:" prop="postSort">
+          <Input v-model="postForm.postSort"></Input>
         </FormItem>
-        <FormItem label="内容:" prop="noticeContent">
-          <v-editor :content="noticeForm.noticeContent" @changeEditorContent="handleContentChange"></v-editor>
+        <FormItem label="部门状态:" prop="status">
+          <i-switch v-model="postForm.status"> </i-switch>
+        </FormItem>
+        <FormItem label="备注:" prop="remark">
+          <Input v-model="postForm.remark"></Input>
         </FormItem>
       </Form>
       <template slot="footer">
@@ -115,13 +120,9 @@
 </template>
 
 <script>
-import { getList, addNotice, updateNotice, deleteNotice } from '@/api/notice';
-import MavonEditor from '../../components/MavonEditor.vue';
+import { getList, addPost, updatePost, deletePost } from '@/api/post';
 export default {
-  name: 'notice',
-  components: {
-    VEditor: MavonEditor,
-  },
+  name: 'post',
   data() {
     const columns = [
       {
@@ -130,27 +131,20 @@ export default {
         align: 'center'
       },
       {
-        title: '序号',
-        key: 'noticeId'
+        title: '岗位编号',
+        key: 'postId'
       },
       {
-        title: '公告标题',
-        key: 'noticeTitle',
-        minWidth: 200
+        title: '岗位编码',
+        key: 'postCode'
       },
       {
-        title: '公告类型',
-        key: 'noticeType',
-        slot: 'noticeType',
+        title: '岗位名称',
+        key: 'postName'
       },
       {
-        title: '创建者',
-        key: 'createBy'
-      },
-      {
-        title: '创建时间',
-        key: 'createTime',
-        width: 180,
+        title: '岗位排序',
+        key: 'postSort'
       },
       {
         title: '状态',
@@ -164,26 +158,33 @@ export default {
       }
     ];
     const ruleValidate = {
-      noticeTitle: [
+      postName: [
         {
           required: true,
           message: "岗位名称不能为空",
           trigger: "blur",
         },
       ],
-      noticeType: [
+      postCode: [
         {
           required: true,
           message: "岗位编码不能为空",
           trigger: "blur",
         },
       ],
+      postSort: [
+        {
+          required: true,
+          message: "岗位排序不能为空",
+          trigger: "blur",
+        },
+      ],
     };
     return {
       searchParams: {
-        noticeTitle: '',
-        noticeType: '',
-        createBy: '',
+        postCode: '',
+        postName: '',
+        status: '',
         pageSize: 10,
         pageNum: 1,
       },
@@ -193,37 +194,45 @@ export default {
           icon: 'md-add',
           label: '添加',
           key: 'add',
-          permission: 'system:notice:add'
+          permission: 'system:post:add'
+        },
+        {
+          type: 'warning',
+          icon: 'md-download',
+          label: '导出',
+          key: 'export',
+          permission: 'system:post:export'
         },
         {
           type: 'error',
           icon: 'md-close',
           label: '删除',
           key: 'delete',
-          permission: 'system:notice:remove'
+          permission: 'system:post:remove'
         },
       ],
       columns,
-      noticeList: [],
+      postList: [],
       total: 0,
-      typeList: [
+      statusList: [
         {
-          label: '通知',
-          value: '1',
+          label: "正常",
+          value: "0",
         },
         {
-          label: '公告',
-          value: '2',
+          label: "停用",
+          value: "1",
         },
       ],
       showModal: false,
-      modalTitle: '添加公告',
+      modalTitle: '新增岗位',
       loading: true,
-      noticeForm: {
-        noticeTitle: '',
-        noticeType: '',
-        noticeContent: '',
+      postForm: {
+        postName: '',
+        postCode: '',
+        postSort: '',
         status: true,
+        remark: '',
       },
       ruleValidate,
       opType: 'create',
@@ -236,8 +245,9 @@ export default {
   methods: {
     handleOperationClick(key) {
       const map = {
-        add: 'addNotice',
-        delete: 'deleteNotice',
+        add: 'addPost',
+        export: 'exportPost',
+        delete: 'deletePost',
       }
       this[map[key]]();
     },
@@ -245,28 +255,28 @@ export default {
       this.loading = true;
       try {
         const res = await getList(this.searchParams);
-        this.noticeList = res.rows;
+        this.postList = res.rows;
         this.total = res.total;
       } catch (e) {
         this.$Message.error(e.msg);
       }
       this.loading = false;
     },
-    addNotice() {
+    addPost() {
       this.showModal = true;
       this.opType = 'create';
-      this.modalTitle = '添加公告';
-      this.$refs.noticeForm.resetFields();
-      delete this.noticeForm.noticeId;
+      this.modalTitle = '新增岗位';
+      this.$refs.postForm.resetFields();
+      delete this.postForm.postId;
     },
     exportPost() {
       console.log('export');
     },
     resetParams() {
       this.searchParams = {
-        noticeTitle: '',
-        noticeType: '',
-        createBy: '',
+        postCode: '',
+        postName: '',
+        status: '',
         pageNum: 1,
       };
       this.getData();
@@ -283,14 +293,14 @@ export default {
       this.showModal = false;
     },
     handleModalConfirm() {
-      this.$refs["noticeForm"].validate(async (valid) => {
+      this.$refs["postForm"].validate(async (valid) => {
         if (valid) {
           const params = {
-            ...this.noticeForm,
-            status: this.noticeForm.status ? '0' : '1',
+            ...this.postForm,
+            status: this.postForm.status ? '0' : '1',
           };
           try {
-            this.opType === "create" ? await addNotice(params) : await updateNotice(params);
+            this.opType === "create" ? await addPost(params) : await updatePost(params);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.getData();
@@ -300,22 +310,26 @@ export default {
         }
       });
     },
-    editNotice(data) {
+    editPost(data) {
       this.opType = 'edit';
       this.showModal = true;
-      this.noticeForm = {
-        ...data,
+      this.postForm = {
+        postName: data.postName,
+        postCode: data.postCode,
+        postSort: data.postSort,
         status: data.status === '0' ? true : false,
+        remark: data.remark,
+        postId: data.postId,
       };
-      this.modalTitle = '编辑公告';
+      this.modalTitle = '编辑岗位';
     },
-    async deleteNotice(data) {
-      let ids = this.selectedData.map(item => item.noticeId);
+    async deletePost(data) {
+      let ids = this.selectedData.map(item => item.postId);
       if (data) {
-        ids = [data.noticeId];
+        ids = [data.postId];
       }
       try {
-        await deleteNotice(ids);
+        await deletePost(ids);
         this.$Message.success('删除成功');
         this.getData();
       } catch (e) {
@@ -325,9 +339,6 @@ export default {
     handleTableSelect(selections) {
       this.selectedData = selections;
     },
-    handleContentChange(content) {
-      this.noticeForm.noticeContent = content;
-    }
   }
 }
 </script>

@@ -36,7 +36,9 @@ export default async function setPermission() {
 async function getMenuPermission() {
   const userInfoRes = await getInfo();
   if (userInfoRes.code === 200) {
-    setSession('menuPermission', userInfoRes.permissions);
+    delete userInfoRes.code;
+    delete userInfoRes.msg;
+    setSession('userInfo', userInfoRes);
   } else {
     Message.error(userInfoRes.msg);
   }

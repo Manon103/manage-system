@@ -7,6 +7,7 @@ import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
 import '@/assets/css/main.css';
 import '@/assets/css/common.less';
+import './assets/css/common.css';
 import { Message } from 'view-design';
 
 import setPermission from './permission';
@@ -20,8 +21,8 @@ Vue.extend({}).constructor.prototype.version = Vue.version;
 Vue.directive('permission', {
   bind: function (el, binding, vnode) {
     const { value } = binding;
-    const menuPermission = getSession('menuPermission');
-    if (!menuPermission.includes(value) && menuPermission[0] !== '*:*:*') {
+    const { permissions } = getSession('userInfo');
+    if (!permissions.includes(value) && permissions[0] !== '*:*:*') {
       el.style.display = 'none';
     }
   }
