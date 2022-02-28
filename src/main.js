@@ -11,6 +11,8 @@ import { Message } from 'view-design';
 
 import setPermission from './permission';
 import { getSession } from './utils/storage';
+import mavonEditor from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
 
 // 开发者工具报错，等待官方修复
 Vue.extend({}).constructor.prototype.version = Vue.version;
@@ -46,6 +48,7 @@ router.beforeEach((to, from, next) => {
 })
 
 Vue.use(ViewUI);
+Vue.use(mavonEditor);
 
 Vue.prototype.axios = axios;
 Vue.config.productionTip = false;

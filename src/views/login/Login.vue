@@ -96,7 +96,7 @@ export default {
               this.$router.push('/home');
             }, 200);
           } catch (e) {
-            this.$Message.error(res.msg);
+            this.$Message.error(e.msg);
           }
         }
       });

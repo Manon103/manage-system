@@ -261,7 +261,6 @@ export default {
         postCode: '',
         postName: '',
         status: '',
-        pageSize: 10,
         pageNum: 1,
       };
       this.getData();

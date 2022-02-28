@@ -232,21 +232,21 @@ export default {
       },
     ];
     const ruleValidate = {
-      name: [
+      roleName: [
         {
           required: true,
           message: "角色名称不能为空",
           trigger: "blur",
         },
       ],
-      permission: [
+      roleKey: [
         {
           required: true,
           message: "权限字符不能为空",
           trigger: "blur",
         },
       ],
-      order: [
+      roleSort: [
         {
           required: true,
           message: "显示顺序不能为空",
@@ -418,7 +418,6 @@ export default {
         status: "",
         timeRange: "",
         pageNum: 1,
-        pageSize: 10,
       };
       this.getData();
     },

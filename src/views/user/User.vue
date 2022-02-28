@@ -295,7 +295,29 @@ export default {
         width: 150,
       }
     ];
-    const ruleValidate = {};
+    const ruleValidate = {
+      nickName: [
+        {
+          required: true,
+          message: "昵称不能为空",
+          trigger: "blur",
+        },
+      ],
+      userName: [
+        {
+          required: true,
+          message: "用户名称不能为空",
+          trigger: "blur",
+        },
+      ],
+      password: [
+        {
+          required: true,
+          message: "密码不能为空",
+          trigger: "blur",
+        },
+      ],
+    };
     return {
       operationBtns: [
         {
@@ -403,7 +425,6 @@ export default {
         userName: "",
         phonenumber: "",
         status: "",
-        pageSize: 10,
         pageNum: 1,
       };
       this.getData();

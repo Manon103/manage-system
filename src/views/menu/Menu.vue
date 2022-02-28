@@ -198,24 +198,24 @@ export default {
       }
     ];
     const ruleValidate = {
-      postName: [
+      menuName: [
         {
           required: true,
-          message: "岗位名称不能为空",
+          message: "菜单名称不能为空",
           trigger: "blur",
         },
       ],
-      postCode: [
+      orderNum: [
         {
           required: true,
-          message: "岗位编码不能为空",
+          message: "显示排序不能为空",
           trigger: "blur",
         },
       ],
-      postSort: [
+      path: [
         {
           required: true,
-          message: "岗位排序不能为空",
+          message: "路由地址不能为空",
           trigger: "blur",
         },
       ],

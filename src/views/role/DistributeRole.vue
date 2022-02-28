@@ -231,7 +231,6 @@ export default {
         status: "",
         timeRange: "",
         pageNum: 1,
-        pageSize: 10,
       };
       this.getData();
     },

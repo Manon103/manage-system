@@ -284,7 +284,6 @@ export default {
     resetParams() {
       this.searchParams = {
         curPage: 1,
-        pageSize: 10,
         deptName: "",
         status: "",
       };
