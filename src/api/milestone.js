@@ -2,31 +2,31 @@ import request from "./request";
 
 export function getList(data) {
   return request({
-    url: 'report/product/list',
+    url: 'report/milestone/list',
+    method: 'get',
+    data,
+  })
+}
+
+export function addMilestone(data) {
+  return request({
+    url: 'report/milestone',
     method: 'post',
     data,
   })
 }
 
-export function addProduct(data) {
+export function updateMilestone(data) {
   return request({
-    url: 'report/product',
-    method: 'post',
-    data,
-  })
-}
-
-export function updateProduct(data) {
-  return request({
-    url: 'report/product',
+    url: 'report/milestone',
     method: 'put',
     data,
   })
 }
 
-export function deleteProduct(data) {
+export function deleteMilestone(data) {
   return request({
-    url: `report/product/remove`,
+    url: `report/milestone/remove`,
     method: 'delete',
     data,
   })

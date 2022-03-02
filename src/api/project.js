@@ -24,9 +24,17 @@ export function updateProject(data) {
   })
 }
 
-export function deleteProject(id) {
+export function deleteProject(data) {
   return request({
-    url: `system/project/${id}`,
+    url: `report/project/remove`,
     method: 'delete',
+    data,
+  })
+}
+
+export function getProjectInfo(id) {
+  return request({
+    url: `report/project/${id}`,
+    method: 'get',
   })
 }

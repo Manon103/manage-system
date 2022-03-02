@@ -4,7 +4,6 @@ import router from '../router';
 import { getSession } from "../utils/storage";
 
 const BASE_URL = 'http://139.198.190.129:8889/';
-let errMsg = '';
 const request = axios.create({
   // 根据环境设置请求地址
   baseURL: BASE_URL || '',
@@ -29,7 +28,6 @@ request.interceptors.request.use(config => {
 request.interceptors.response.use(response => {
   // 此情况下是后端使用code作为状态码，并且规定了401为未登录
   if (response.data.code === 401) {
-    errMsg = '请先登录';
     router.replace('/login');
   }
   if (!response.data) {
@@ -40,24 +38,28 @@ request.interceptors.response.use(response => {
   }
   return response.data;
 }, err => {
-  if (err.response && err.response.status) {
+  if (err && err.response) {
     switch (err.response.status) {
       case 401:
-        errMsg = '请先登录';
+        err.message = '请先登录';
         router.replace('/login');
         break;
       case 403:
-        errMsg = '登录已失效，请重新登录';
+        err.message = '登录已失效，请重新登录';
         router.replace('/login');
         break;
       case 404:
-        errMsg = '请求不存在';
+        err.message = '请求不存在';
         break;
       default:
-        errMsg = err;
+        err.message = `连接错误${err.response.status}`;
         break;
     }
+  } else {
+    // 跨域获取不到状态码或者其他状态码进行的处理
+    err.message = '网络出现问题，请稍后重试'
   }
+  Message.error(err.message);
   return Promise.reject(err);
 })
 

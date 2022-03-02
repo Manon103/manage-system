@@ -262,6 +262,7 @@ export default {
         postName: '',
         status: '',
         pageNum: 1,
+        pageSize: this.searchParams.pageSize
       };
       this.getData();
     },

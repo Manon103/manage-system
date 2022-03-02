@@ -54,13 +54,6 @@
           </Poptip>
         </template>
       </Table>
-      <Page
-        class="right mt-10"
-        :total="total"
-        @on-change="handlePageChange"
-        show-sizer
-        @on-page-size-change="handlePageSizeChange"
-      />
     </div>
     <Modal
       v-model="showModal"
@@ -174,8 +167,6 @@ export default {
       deptList: [],
       total: 0,
       searchParams: {
-        curPage: 1,
-        pageSize: 10,
         deptName: "",
         status: "",
       },
@@ -219,6 +210,7 @@ export default {
         const treeData = [];
         if (this.searchParams.deptName || this.searchParams.status === "1") {
           this.deptList = res.data;
+          this.loading = false;
           return;
         }
         // 将数据处理成为树结构
@@ -249,15 +241,16 @@ export default {
               }
             }
           });
-          this.deptList = treeData;
           if (this.init) {
             // 保存全部的树结构
             this.allTreeData = treeData;
             this.flatData = res.data;
           }
         }
+        this.deptList = treeData;
       } catch (e) {
-        this.$Message.error(res.msg);
+        console.log(e);
+        this.$Message.error(e.msg);
       }
       this.init = false;
       this.loading = false;
@@ -283,18 +276,9 @@ export default {
     },
     resetParams() {
       this.searchParams = {
-        curPage: 1,
         deptName: "",
         status: "",
       };
-    },
-    handlePageSizeChange(size) {
-      this.pageParams.pageSize = size;
-      this.getData();
-    },
-    handlePageChange(page) {
-      this.pageParams.curPage = page;
-      this.getData();
     },
     findParent(list, dept) {
       if (!dept.parentId) {

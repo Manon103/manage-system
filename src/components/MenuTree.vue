@@ -57,11 +57,12 @@ export default {
     ids: {
       handler: async function (val) { 
         await this.getTreeData();
+        // 递归层级
         function recrusionChildren(children) {
           if (children && children.length) {
             children.forEach(item => {
               if (val.includes(item.id)) {
-                Vue.set(item, 'checked', true);
+                Vue.set(item, 'checked', true);   // item本身没有checked属性，需要使用set
               } else {
                 Vue.set(item, 'checked', false);
               }

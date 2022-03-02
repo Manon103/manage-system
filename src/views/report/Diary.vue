@@ -290,6 +290,7 @@ export default {
         createBy: '',
         projectName: '',
         pageNum: 1,
+        pageSize: this.searchParams.pageSize
       };
     },
     handlePageSizeChange(size) {

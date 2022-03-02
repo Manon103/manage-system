@@ -1,5 +1,3 @@
-import { Store } from "vuex";
-
 export function initDeptTree(data) {
   const treeData = [];
   // 将数据处理成为树结构

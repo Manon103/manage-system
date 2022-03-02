@@ -10,35 +10,19 @@
         >
           <Option
             v-for="item in projectList"
-            :value="item.value"
-            :key="item.value"
-            >{{ item.label }}</Option
+            :value="item.id"
+            :key="item.id"
+            >{{ item.projectName }}</Option
           >
         </Select>
-        <Input v-model="searchParams.projectId" placeholder="请输入岗位编码" style="width: 200px" />
       </div>
       <div class="mr-20">
         <span class="label">负责人：</span>
-        <Input v-model="searchParams.milesManager" placeholder="请输入岗位名称" style="width: 200px" />
+        <Input v-model="searchParams.milesManager" style="width: 200px" />
       </div>
       <div class="mr-20">
         <span class="label">内容：</span>
-        <Input v-model="searchParams.milesContent" placeholder="请输入岗位名称" style="width: 200px" />
-      </div>
-      <div class="mr-20">
-        <span class="label">状态：</span>
-        <Select
-          clearable
-          v-model="searchParams.status"
-          style="width: 200px"
-        >
-          <Option
-            v-for="item in statusList"
-            :value="item.value"
-            :key="item.value"
-            >{{ item.label }}</Option
-          >
-        </Select>
+        <Input v-model="searchParams.milesContent" style="width: 200px" />
       </div>
       <Button type="primary" class="mr-20" @click="getData">搜索</Button>
       <Button @click="resetParams">重置</Button>
@@ -62,14 +46,14 @@
       <Table 
         :columns="columns" 
         @on-selection-change="handleTableSelect"
-        :data="postList" >
+        :data="milestoneList" >
         <template slot-scope="{ row }" slot="status">
           <Badge color="green" text="正常" v-if="row.status === '0'" />
           <Badge color="red" text="停用" v-if="row.status === '1'" />
         </template>
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'system:post:edit'" @click="editPost(row)">编辑</a>
-            <Poptip confirm v-permission="'system:post:remove'" title="确认删除该岗位吗" @on-ok="deletePost(row)">
+            <a class="mr-10" v-permission="'system:milestone:edit'" @click="editMilestone(row)">编辑</a>
+            <Poptip confirm v-permission="'system:milestone:remove'" title="确认删除该岗位吗" @on-ok="deleteMilestone(row)">
               <a class="error-link">删除</a>
             </Poptip>
         </template>
@@ -90,25 +74,25 @@
       :closable="false"
     >
       <Form
-        :model="postForm"
+        :model="milestoneForm"
         :rules="ruleValidate"
         :label-width="100"
-        ref="postForm"
+        ref="milestoneForm"
       >
-        <FormItem label="岗位名称:" prop="postName">
-          <Input v-model="postForm.postName"></Input>
+        <FormItem label="岗位名称:" prop="milestoneName">
+          <Input v-model="milestoneForm.milestoneName"></Input>
         </FormItem>
-        <FormItem label="岗位编码:" prop="postCode">
-          <Input v-model="postForm.postCode"></Input>
+        <FormItem label="岗位编码:" prop="milestoneCode">
+          <Input v-model="milestoneForm.milestoneCode"></Input>
         </FormItem>
-        <FormItem label="岗位顺序:" prop="postSort">
-          <Input v-model="postForm.postSort"></Input>
+        <FormItem label="岗位顺序:" prop="milestoneSort">
+          <Input v-model="milestoneForm.milestoneSort"></Input>
         </FormItem>
         <FormItem label="部门状态:" prop="status">
-          <i-switch v-model="postForm.status"> </i-switch>
+          <i-switch v-model="milestoneForm.status"> </i-switch>
         </FormItem>
         <FormItem label="备注:" prop="remark">
-          <Input v-model="postForm.remark"></Input>
+          <Input v-model="milestoneForm.remark"></Input>
         </FormItem>
       </Form>
       <template slot="footer">
@@ -120,9 +104,9 @@
 </template>
 
 <script>
-import { getList, addPost, updatePost, deletePost } from '@/api/post';
+import { getList, addMilestone, updateMilestone, deleteMilestone } from '@/api/milestone';
 export default {
-  name: 'post',
+  name: 'milestone',
   data() {
     const columns = [
       {
@@ -131,25 +115,24 @@ export default {
         align: 'center'
       },
       {
-        title: '岗位编号',
-        key: 'postId'
+        title: '项目名称',
+        key: 'projectName'
       },
       {
-        title: '岗位编码',
-        key: 'postCode'
+        title: '开始时间',
+        key: 'milesBegin'
       },
       {
-        title: '岗位名称',
-        key: 'postName'
+        title: '结束时间',
+        key: 'milesEnd'
       },
       {
-        title: '岗位排序',
-        key: 'postSort'
+        title: '负责人',
+        key: 'milesManager'
       },
       {
-        title: '状态',
-        key: 'status',
-        slot: 'status',
+        title: '内容',
+        key: 'milesContent',
       },
       {
         title: '操作',
@@ -158,21 +141,21 @@ export default {
       }
     ];
     const ruleValidate = {
-      postName: [
+      milestoneName: [
         {
           required: true,
           message: "岗位名称不能为空",
           trigger: "blur",
         },
       ],
-      postCode: [
+      milestoneCode: [
         {
           required: true,
           message: "岗位编码不能为空",
           trigger: "blur",
         },
       ],
-      postSort: [
+      milestoneSort: [
         {
           required: true,
           message: "岗位排序不能为空",
@@ -182,11 +165,11 @@ export default {
     };
     return {
       searchParams: {
-        postCode: '',
-        postName: '',
-        status: '',
+        projectId: '',
+        milestoneContent: '',
         pageSize: 10,
         pageNum: 1,
+        milesManager: '',
       },
       operationBtns: [
         {
@@ -194,25 +177,25 @@ export default {
           icon: 'md-add',
           label: '添加',
           key: 'add',
-          permission: 'system:post:add'
+          permission: 'system:milestone:add'
         },
         {
           type: 'warning',
           icon: 'md-download',
           label: '导出',
           key: 'export',
-          permission: 'system:post:export'
+          permission: 'system:milestone:export'
         },
         {
           type: 'error',
           icon: 'md-close',
           label: '删除',
           key: 'delete',
-          permission: 'system:post:remove'
+          permission: 'system:milestone:remove'
         },
       ],
       columns,
-      postList: [],
+      projectList: [],
       total: 0,
       statusList: [
         {
@@ -227,10 +210,10 @@ export default {
       showModal: false,
       modalTitle: '新增岗位',
       loading: true,
-      postForm: {
-        postName: '',
-        postCode: '',
-        postSort: '',
+      milestoneForm: {
+        milestoneName: '',
+        milestoneCode: '',
+        milestoneSort: '',
         status: true,
         remark: '',
       },
@@ -245,9 +228,9 @@ export default {
   methods: {
     handleOperationClick(key) {
       const map = {
-        add: 'addPost',
-        export: 'exportPost',
-        delete: 'deletePost',
+        add: 'addMilestone',
+        export: 'exportMilestone',
+        delete: 'deleteMilestone',
       }
       this[map[key]]();
     },
@@ -255,29 +238,30 @@ export default {
       this.loading = true;
       try {
         const res = await getList(this.searchParams);
-        this.postList = res.rows;
+        this.milestoneList = res.rows;
         this.total = res.total;
       } catch (e) {
         this.$Message.error(e.msg);
       }
       this.loading = false;
     },
-    addPost() {
+    addMilestone() {
       this.showModal = true;
       this.opType = 'create';
       this.modalTitle = '新增岗位';
-      this.$refs.postForm.resetFields();
-      delete this.postForm.postId;
+      this.$refs.milestoneForm.resetFields();
+      delete this.milestoneForm.milestoneId;
     },
-    exportPost() {
+    exportMilestone() {
       console.log('export');
     },
     resetParams() {
       this.searchParams = {
-        postCode: '',
-        postName: '',
+        milestoneCode: '',
+        milestoneName: '',
         status: '',
         pageNum: 1,
+        pageSize: this.searchParams.pageSize
       };
       this.getData();
     },
@@ -293,14 +277,14 @@ export default {
       this.showModal = false;
     },
     handleModalConfirm() {
-      this.$refs["postForm"].validate(async (valid) => {
+      this.$refs["milestoneForm"].validate(async (valid) => {
         if (valid) {
           const params = {
-            ...this.postForm,
-            status: this.postForm.status ? '0' : '1',
+            ...this.milestoneForm,
+            status: this.milestoneForm.status ? '0' : '1',
           };
           try {
-            this.opType === "create" ? await addPost(params) : await updatePost(params);
+            this.opType === "create" ? await addMilestone(params) : await updateMilestone(params);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.getData();
@@ -310,26 +294,26 @@ export default {
         }
       });
     },
-    editPost(data) {
+    editMilestone(data) {
       this.opType = 'edit';
       this.showModal = true;
-      this.postForm = {
-        postName: data.postName,
-        postCode: data.postCode,
-        postSort: data.postSort,
+      this.milestoneForm = {
+        milestoneName: data.milestoneName,
+        milestoneCode: data.milestoneCode,
+        milestoneSort: data.milestoneSort,
         status: data.status === '0' ? true : false,
         remark: data.remark,
-        postId: data.postId,
+        milestoneId: data.milestoneId,
       };
       this.modalTitle = '编辑岗位';
     },
-    async deletePost(data) {
-      let ids = this.selectedData.map(item => item.postId);
+    async deleteMilestone(data) {
+      let ids = this.selectedData.map(item => item.milestoneId);
       if (data) {
-        ids = [data.postId];
+        ids = [data.milestoneId];
       }
       try {
-        await deletePost(ids);
+        await deleteMilestone(ids);
         this.$Message.success('删除成功');
         this.getData();
       } catch (e) {

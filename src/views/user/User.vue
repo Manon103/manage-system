@@ -426,6 +426,7 @@ export default {
         phonenumber: "",
         status: "",
         pageNum: 1,
+        pageSize: this.searchParams.pageSize
       };
       this.getData();
     },

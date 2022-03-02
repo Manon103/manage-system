@@ -11,7 +11,7 @@
       </div>
       <div class="mr-20">
         <span class="label">负责人：</span>
-        <Input v-model="searchParams.productManagers" style="width: 200px" />
+        <Input v-model="searchParams.productManager" style="width: 200px" />
       </div>
       <Button type="primary" class="mr-20" @click="getData">搜索</Button>
       <Button @click="resetParams">重置</Button>
@@ -36,10 +36,6 @@
         :columns="columns" 
         @on-selection-change="handleTableSelect"
         :data="productList" >
-        <template slot-scope="{ row }" slot="status">
-          <Badge color="green" text="正常" v-if="row.status === '0'" />
-          <Badge color="red" text="停用" v-if="row.status === '1'" />
-        </template>
         <template slot-scope="{ row }" slot="action">
             <a class="mr-10" v-permission="'system:product:edit'" @click="editProduct(row)">编辑</a>
             <Poptip confirm v-permission="'system:product:remove'" title="确认删除该业务域吗" @on-ok="deleteProduct(row)">
@@ -119,21 +115,21 @@ export default {
       productName: [
         {
           required: true,
-          message: "岗位名称不能为空",
+          message: "名称不能为空",
           trigger: "blur",
         },
       ],
       productCode: [
         {
           required: true,
-          message: "岗位编码不能为空",
+          message: "编码不能为空",
           trigger: "blur",
         },
       ],
       productManager: [
         {
           required: true,
-          message: "岗位排序不能为空",
+          message: "负责人不能为空",
           trigger: "blur",
         },
       ],
@@ -142,7 +138,7 @@ export default {
       searchParams: {
         productCode: '',
         productName: '',
-        productManagers: [],
+        productManager: '',
         pageSize: 10,
         pageNum: 1,
       },
@@ -174,7 +170,7 @@ export default {
       total: 0,
       showModal: false,
       modalTitle: '新增岗位',
-      loading: true,
+      loading: false,
       productFrom: {
         productName: '',
         productCode: '',
@@ -220,9 +216,10 @@ export default {
     },
     resetParams() {
       this.searchParams = {
-        postCode: '',
-        postName: '',
-        status: '',
+        productCode: '',
+        productName: '',
+        productManager: '',
+        pageSize: this.searchParams.pageSize,
         pageNum: 1,
       };
       this.getData();

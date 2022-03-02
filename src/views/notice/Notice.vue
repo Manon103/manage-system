@@ -268,6 +268,7 @@ export default {
         noticeType: '',
         createBy: '',
         pageNum: 1,
+        pageSize: this.searchParams.pageSize
       };
       this.getData();
     },
