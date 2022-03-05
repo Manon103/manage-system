@@ -36,7 +36,8 @@
           class="mr-10" 
           :key="item.key"
           v-permission="item.permission"
-          @click="handleOperationClick(item.key)">
+          @click="handleOperationClick(item.key)"
+          :disabled="item.disabled">
           {{item.label}}
         </Button>
       </template>
@@ -46,16 +47,15 @@
       <Table 
         :columns="columns" 
         @on-selection-change="handleTableSelect"
-        :data="milestoneList" >
+        :data="milestoneList" 
+        @on-row-click="showDetail">
         <template slot-scope="{ row }" slot="status">
           <Badge color="green" text="正常" v-if="row.status === '0'" />
           <Badge color="red" text="停用" v-if="row.status === '1'" />
         </template>
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'system:milestone:edit'" @click="editMilestone(row)">编辑</a>
-            <Poptip confirm v-permission="'system:milestone:remove'" title="确认删除该岗位吗" @on-ok="deleteMilestone(row)">
-              <a class="error-link">删除</a>
-            </Poptip>
+            <a class="mr-10" v-permission="'system:milestone:edit'" @click="(e) => editMilestone(e, row)">编辑</a>
+            <a class="error-link" @click="(e) => deleteMilestone(e, row)">删除</a>
         </template>
       </Table>
        <Page 
@@ -76,23 +76,33 @@
       <Form
         :model="milestoneForm"
         :rules="ruleValidate"
-        :label-width="100"
+        :label-width="150"
         ref="milestoneForm"
       >
-        <FormItem label="岗位名称:" prop="milestoneName">
-          <Input v-model="milestoneForm.milestoneName"></Input>
+        <FormItem label="项目名称:" prop="projectId">
+          <Select
+            v-model="milestoneForm.projectId"
+            :disabled="isView"
+          >
+            <Option
+              v-for="item in projectList"
+              :value="item.id"
+              :key="item.id"
+              >{{ item.projectName }}</Option
+            >
+          </Select>
         </FormItem>
-        <FormItem label="岗位编码:" prop="milestoneCode">
-          <Input v-model="milestoneForm.milestoneCode"></Input>
+        <FormItem label="里程碑开始时间:" prop="milesBegin">
+          <DatePicker :disabled="isView" v-model="milestoneForm.milesBegin" type="date"></DatePicker>
         </FormItem>
-        <FormItem label="岗位顺序:" prop="milestoneSort">
-          <Input v-model="milestoneForm.milestoneSort"></Input>
+        <FormItem label="里程碑结束时间:" prop="milesEnd">
+          <DatePicker :disabled="isView" v-model="milestoneForm.milesEnd" type="date"></DatePicker>
         </FormItem>
-        <FormItem label="部门状态:" prop="status">
-          <i-switch v-model="milestoneForm.status"> </i-switch>
+        <FormItem label="里程碑负责人:" prop="milesManagers">
+          <Input :disabled="isView" v-model="milestoneForm.milesManagers"></Input>
         </FormItem>
-        <FormItem label="备注:" prop="remark">
-          <Input v-model="milestoneForm.remark"></Input>
+        <FormItem label="里程碑内容:" prop="milesContent">
+          <v-editor :editable="!isView" :defaultOpen="isView ? 'preview' : 'edit'" :content="milestoneForm.milesContent" @changeEditorContent="(content) => milestoneForm.milesContent=content"></v-editor>
         </FormItem>
       </Form>
       <template slot="footer">
@@ -105,8 +115,14 @@
 
 <script>
 import { getList, addMilestone, updateMilestone, deleteMilestone } from '@/api/milestone';
+import { getList as getProjectList } from '@/api/project';
+import MavonEditor from '../../components/MavonEditor.vue';
+
 export default {
   name: 'milestone',
+  components: {
+    VEditor: MavonEditor,
+  },
   data() {
     const columns = [
       {
@@ -141,24 +157,33 @@ export default {
       }
     ];
     const ruleValidate = {
-      milestoneName: [
+      projectId: [
         {
           required: true,
-          message: "岗位名称不能为空",
+          message: "项目不能为空",
           trigger: "blur",
         },
       ],
-      milestoneCode: [
+      milesBegin: [
         {
           required: true,
-          message: "岗位编码不能为空",
+          message: "开始时间不能为空",
           trigger: "blur",
+          type: 'date'
         },
       ],
-      milestoneSort: [
+      milesEnd: [
         {
           required: true,
-          message: "岗位排序不能为空",
+          message: "结束时间不能为空",
+          trigger: "blur",
+          type: 'date'
+        },
+      ],
+      milesManagers: [
+        {
+          required: true,
+          message: "负责人不能为空",
           trigger: "blur",
         },
       ],
@@ -171,6 +196,7 @@ export default {
         pageNum: 1,
         milesManager: '',
       },
+      selectedData: [],
       operationBtns: [
         {
           type: 'primary',
@@ -191,39 +217,44 @@ export default {
           icon: 'md-close',
           label: '删除',
           key: 'delete',
-          permission: 'system:milestone:remove'
+          permission: 'system:milestone:remove',
         },
       ],
       columns,
       projectList: [],
-      total: 0,
-      statusList: [
+      milestoneList: [
         {
-          label: "正常",
-          value: "0",
-        },
-        {
-          label: "停用",
-          value: "1",
-        },
+          projectName: 'aaa'
+        }
       ],
+      total: 0,
       showModal: false,
       modalTitle: '新增岗位',
       loading: true,
       milestoneForm: {
-        milestoneName: '',
-        milestoneCode: '',
-        milestoneSort: '',
-        status: true,
-        remark: '',
+        projectId: '',
+        milesBegin: '',
+        milesEnd: '',
+        milesManagers: '',
+        milesContent: '',
       },
       ruleValidate,
       opType: 'create',
-      selectedData: [],
+      isView: false,
+    }
+  },
+  watch: {
+    selectedData: {
+      handler(val) {
+        this.$set(this.operationBtns[2], 'disabled', !val.length);
+      },
+      deep: true,
+      immediate: true,
     }
   },
   async created() {
     this.getData();
+    this.getProjectInfo();
   },
   methods: {
     handleOperationClick(key) {
@@ -248,7 +279,7 @@ export default {
     addMilestone() {
       this.showModal = true;
       this.opType = 'create';
-      this.modalTitle = '新增岗位';
+      this.modalTitle = '新增里程碑';
       this.$refs.milestoneForm.resetFields();
       delete this.milestoneForm.milestoneId;
     },
@@ -257,10 +288,10 @@ export default {
     },
     resetParams() {
       this.searchParams = {
-        milestoneCode: '',
-        milestoneName: '',
-        status: '',
+        projectId: '',
+        milestoneContent: '',
         pageNum: 1,
+        milesManager: '',
         pageSize: this.searchParams.pageSize
       };
       this.getData();
@@ -294,35 +325,53 @@ export default {
         }
       });
     },
-    editMilestone(data) {
+    editMilestone(e, data) {
+      e.stopPropagation();
       this.opType = 'edit';
       this.showModal = true;
-      this.milestoneForm = {
-        milestoneName: data.milestoneName,
-        milestoneCode: data.milestoneCode,
-        milestoneSort: data.milestoneSort,
-        status: data.status === '0' ? true : false,
-        remark: data.remark,
-        milestoneId: data.milestoneId,
-      };
-      this.modalTitle = '编辑岗位';
+      this.milestoneForm = {...data};
+      this.modalTitle = '编辑里程碑';
     },
-    async deleteMilestone(data) {
-      let ids = this.selectedData.map(item => item.milestoneId);
-      if (data) {
-        ids = [data.milestoneId];
-      }
-      try {
-        await deleteMilestone(ids);
-        this.$Message.success('删除成功');
-        this.getData();
-      } catch (e) {
-        this.$Message.error(e.msg);
-      }
+    async deleteMilestone(e, data) {
+      e && e.stopPropagation();
+      this.$Modal.confirm({
+        title: '确认删除该项目吗',
+        closable: true,
+        onOk: async() => {
+          let ids = this.selectedData.map(item => item.milestoneId);
+          if (data) {
+            ids = [data.milestoneId];
+          }
+          try {
+            await deleteMilestone(ids);
+            this.$Message.success('删除成功');
+            this.getData();
+          } catch (e) {
+            this.$Message.error(e.msg);
+          }
+        },
+      })
     },
     handleTableSelect(selections) {
       this.selectedData = selections;
     },
+    async getProjectInfo() {
+      try {
+        const res = await getProjectList({
+          pageSize: 999,
+          pageNum: 1,
+        });
+        this.projectList = res.rows;
+      } catch (e) {
+        this.$Message.error(e.msg);
+      }
+    },
+    async showDetail(data) {
+      this.modalTitle = '项目详情',
+      this.showModal = true;
+      this.isView = true;
+      this.milestoneForm = {...data};
+    }
   }
 }
 </script>

@@ -51,6 +51,7 @@
             :key="item.key"
             v-permission="item.permission"
             @click="handleOperationClick(item.key)"
+            :disabled="item.disabled"
           >
             {{ item.label }}
           </Button>
@@ -413,6 +414,15 @@ export default {
       showAuthModal: false,
       authRoles: [],
     };
+  },
+  watch: {
+    selectedData: {
+      handler(val) {
+        this.$set(this.operationBtns[1], 'disabled', !val.length);
+      },
+      deep: true,
+      immediate: true,
+    }
   },
   created() {
     this.getData();

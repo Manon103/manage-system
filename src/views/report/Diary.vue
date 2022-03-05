@@ -25,7 +25,8 @@
           class="mr-10" 
           :key="item.key"
           v-permission="item.permission"
-          @click="handleOperationClick(item.key)">
+          @click="handleOperationClick(item.key)"
+          :disabled="item.disabled">
           {{item.label}}
         </Button>
       </template>
@@ -226,6 +227,15 @@ export default {
       opType: 'create',
       projectList: [],
       productList: [],
+    }
+  },
+  watch: {
+    selectedData: {
+      handler(val) {
+        this.$set(this.operationBtns[2], 'disabled', !val.length);
+      },
+      deep: true,
+      immediate: true,
     }
   },
   created() {

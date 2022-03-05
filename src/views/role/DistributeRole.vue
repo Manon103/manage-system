@@ -29,6 +29,7 @@
           class="mr-10"
           :key="item.key"
           @click="handleOperationClick(item.key)"
+          :disabled="item.disabled"
         >
           {{ item.label }}
         </Button>
@@ -173,6 +174,15 @@ export default {
       unauthList: [],
       unauthSelected: [],
     };
+  },
+  watch: {
+    selectedData: {
+      handler(val) {
+        this.$set(this.operationBtns[2], 'disabled', !val.length);
+      },
+      deep: true,
+      immediate: true,
+    }
   },
   created() {
     this.getData();

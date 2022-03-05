@@ -1,10 +1,10 @@
 import request from "./request";
 
-export function getList(data) {
+export function getList(params) {
   return request({
     url: 'report/milestone/list',
     method: 'get',
-    data,
+    params,
   })
 }
 
