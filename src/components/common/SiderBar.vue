@@ -58,10 +58,9 @@ export default {
   created() {
     this.menuList.push(...getSession('permission'));
     this.handleRouteChange();
-    const activeItem = this.findActiveItem(this.$route.name);
     const newItem = {
-      label: activeItem ? activeItem.meta.title : '',
-      path: activeItem.name,
+      label: this.$route.meta.title,
+      path: this.$route.name,
     }
     // 更新tabList
     this.$store.commit('SET_TABLIST', [newItem])

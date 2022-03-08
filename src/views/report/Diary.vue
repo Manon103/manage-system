@@ -6,10 +6,6 @@
         <DatePicker type="date" placeholder="请选择填写日期" style="width: 200px" v-model="searchParams.writeDate"></DatePicker>
       </div>
       <div class="mr-20">
-        <span class="label">填写人：</span>
-        <Input v-model="searchParams.createBy" placeholder="请输入填写人" style="width: 200px" />
-      </div>
-      <div class="mr-20">
         <span class="label">项目名称：</span>
         <Input v-model="searchParams.projectName" placeholder="请输入项目名称" style="width: 200px" />
       </div>
@@ -33,10 +29,14 @@
     </div>
     <div class='table-data relative'>
       <Spin fix v-if="loading"></Spin>
-      <Table :columns="columns" :data="reportList">
+      <Table 
+        :columns="columns" 
+        :data="reportList" 
+        @on-row-click="showDetail"
+        @on-selection-change="handleTableSelect">
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'report:diary:edit'" @click="editReport(row)">编辑</a>
-            <a class="error-link" v-permission="'report:diary:delete'" @click="deleteReport(row)">删除</a>
+            <a class="mr-10" v-permission="'report:diary:edit'" @click="editReport(e, row)">编辑</a>
+            <a class="error-link" v-permission="'report:diary:delete'" @click="(e) => deleteReport(e, row)">删除</a>
         </template>
       </Table>
        <Page 
@@ -64,11 +64,12 @@
           <Select
             v-model="diaryForm.productId"
             style="width: 200px"
+            :disabled="isView"
           >
             <Option
               v-for="item in productList"
-              :value="item.productId"
-              :key="item.productId"
+              :value="item.id"
+              :key="item.id"
               >{{ item.productName }}</Option
             >
           </Select>
@@ -77,33 +78,37 @@
           <Select
             v-model="diaryForm.projectId"
             style="width: 200px"
+            label-in-value
+            :disabled="isView"
+            @on-change="handleProjectSelect"
           >
             <Option
               v-for="item in projectList"
-              :value="item.projectId"
-              :key="item.projectId"
+              :value="item.id"
+              :key="item.id"
               >{{ item.projectName }}</Option
             >
           </Select>
         </FormItem>
-        <FormItem label="里程碑:" prop="productId">
+        <FormItem label="里程碑:" prop="milestoneId">
           <Select
-            v-model="diaryForm.productId"
+            v-model="diaryForm.milestoneId"
             style="width: 200px"
+            :disabled="isView"
           >
             <Option
-              v-for="item in productList"
-              :value="item.productId"
-              :key="item.productId"
-              >{{ item.productName }}</Option
+              v-for="item in milestoneList"
+              :value="item.id"
+              :key="item.id"
+              >{{ item.milesContent }}</Option
             >
           </Select>
         </FormItem>
         <FormItem label="填写日期:" prop="writeDate">
-          <DatePicker type="date" v-model="diaryForm.writeDate"></DatePicker>
+          <DatePicker :disabled="isView" type="date" v-model="diaryForm.writeDate"></DatePicker>
         </FormItem>
         <FormItem label="周报内容:" prop="content">
-          <v-editor :content="diaryForm.content" @changeEditorContent="handleContentChange"></v-editor>
+          <v-editor :editable="!isView" :defaultOpen="isView ? 'preview' : 'edit'" :content="diaryForm.content" @changeEditorContent="handleContentChange"></v-editor>
         </FormItem>
       </Form>
       <template slot="footer">
@@ -115,8 +120,10 @@
 </template>
 
 <script>
-import { getList, addDiary, updateDiary } from '@/api/diary';
+import { getList, addDiary, updateDiary, deleteDiary } from '@/api/diary';
 import { getList as getProjectList } from '@/api/project';
+import { getList as getProductList } from '@/api/product';
+import { getList as getMilestoneList } from '@/api/milestone';
 import { getSession } from '@/utils/storage';
 import MavonEditor from '../../components/MavonEditor.vue';
 export default {
@@ -133,11 +140,11 @@ export default {
       },
       {
         title: '填写日期',
-        key: 'date'
+        key: 'writeDate'
       },
       {
         title: '项目名称',
-        key: 'name'
+        key: 'projectName'
       },
       {
         title: '周报内容',
@@ -145,11 +152,11 @@ export default {
       },
       {
         title: '填写人',
-        key: 'author'
+        key: 'userName'
       },
       {
         title: '第几周/年',
-        key: 'week'
+        key: 'weekOfYear'
       },
       {
         title: '操作',
@@ -158,10 +165,27 @@ export default {
       }
     ];
     const ruleValidate = {
+      productId: [
+        {
+          required: true,
+          message: "业务域不能为空",
+          type: 'number',
+          trigger: "blur",
+        },
+      ],
       projectId: [
         {
           required: true,
           message: "项目名称不能为空",
+          type: 'number',
+          trigger: "blur",
+        },
+      ],
+      milestoneId: [
+        {
+          required: true,
+          message: "里程碑不能为空",
+          type: 'number',
           trigger: "blur",
         },
       ],
@@ -220,13 +244,20 @@ export default {
       modalTitle: '新增周报',
       diaryForm: {
         projectId: '',
+        productId: '',
         writeDate: '',
         content: '',
+        milestoneId: '',
+        projectName: '',
       },
       ruleValidate,
       opType: 'create',
       projectList: [],
       productList: [],
+      userName: '',
+      milestoneList: [],
+      selectedData: [],
+      isView: false,
     }
   },
   watch: {
@@ -240,8 +271,11 @@ export default {
   },
   created() {
     const { user } = getSession('userInfo');
-    this.searchParams.createBy = user.userName;
+    this.userName = user.userName;
     this.getData();
+    this.getProjectList();
+    this.getProductList();
+    this.getMilestoneList();
   },
   methods: {
     handleOperationClick(key) {
@@ -255,8 +289,10 @@ export default {
     async getData() {
       this.loading = true;
       try {
+        this.searchParams.createBy = this.userName;
         const res = await getList(this.searchParams);
-        console.log(res);
+        this.reportList = res.rows;
+        this.total = res.total;
       } catch (e) {
         this.$Message.error(e.msg);
       }
@@ -264,9 +300,9 @@ export default {
     },
     addReport() {
       this.$refs.diaryForm.resetFields();
-      this.getProjectList();
       this.showModal = true;
       this.opType = 'create';
+      this.isView = false;
       this.modalTitle = '新建周报';
       delete this.diaryForm.reportId;
     },
@@ -276,31 +312,72 @@ export default {
           pageSize: 999,
           pageNum: 1
         });
-        console.log(res);
+        this.projectList = res.rows;
       } catch (e) {
         this.$Message.error(e.msg);
       }
     },
-    editReport(data) {
-      this.getProjectList();
+    async getProductList() {
+      try {
+        const res = await getProductList({
+          pageSize: 999,
+          pageNum: 1
+        });
+        this.productList = res.rows;
+      } catch (e) {
+        this.$Message.error(e.msg);
+      }
+    },
+    async getMilestoneList() {
+      try {
+        const res = await getMilestoneList({
+          pageSize: 999,
+          pageNum: 1
+        });
+        this.milestoneList = res.rows;
+      } catch (e) {
+        this.$Message.error(e.msg);
+      }
+    },
+    async editReport(e, data) {
+      e && e.stopPropagation();
+      this.isView = false;
       this.showModal = true;
       this.opType = 'edit';
       this.modalTitle = '编辑周报';
-      this.diaryForm = data;
+      this.diaryForm = {...data};
     },
     exportReport() {
       console.log('export');
     },
-    deleteReport() {
-      console.log('delete');
+    deleteReport(e, data) {
+      e && e.stopPropagation();
+      this.$Modal.confirm({
+        title: '确认删除该周报吗',
+        closable: true,
+        onOk: async() => {
+          let ids = this.selectedData.map(item => item.id);
+          if (data) {
+            ids = [data.id];
+          }
+          try {
+            await deleteDiary(ids);
+            this.$Message.success('删除成功');
+            this.getData();
+            this.selectedData = [];
+          } catch (e) {
+            this.$Message.error(e.msg);
+          }
+        },
+      })
     },
     resetParams() {
       this.searchParams = {
         writeDate: '',
-        createBy: '',
         projectName: '',
         pageNum: 1,
-        pageSize: this.searchParams.pageSize
+        pageSize: this.searchParams.pageSize,
+        createBy: this.userName,
       };
     },
     handlePageSizeChange(size) {
@@ -315,7 +392,11 @@ export default {
       this.$refs["diaryForm"].validate(async (valid) => {
         if (valid) {
           try {
-            this.opType === "create" ? await addDiary(this.diaryForm) : await updateDiary(this.diaryForm);
+            const data = {
+              ...this.diaryForm,
+              createBy: this.userName,
+            }
+            this.opType === "create" ? await addDiary(data) : await updateDiary(data);
             this.$Message.success("操作成功");
             this.showModal = false;
             this.getData();
@@ -327,6 +408,18 @@ export default {
     },
     handleContentChange(content) {
       this.diaryForm.content = content;
+    },
+    handleTableSelect(selections) {
+      this.selectedData = selections;
+    },
+    handleProjectSelect(val) {
+      this.diaryForm.projectName = val.label;
+    },
+    async showDetail(data) {
+      this.modalTitle = '周报详情',
+      this.showModal = true;
+      this.isView = true;
+      this.diaryForm = {...data};
     }
   }
 }

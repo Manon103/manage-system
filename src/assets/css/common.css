@@ -2,3 +2,7 @@
 .ivu-table-wrapper {
   overflow: initial;
 }
+
+.ivu-select-dropdown {
+  z-index: 1501;
+}

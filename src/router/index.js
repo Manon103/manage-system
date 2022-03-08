@@ -19,8 +19,19 @@ const baseRoutes = [
     name: 'home',
     component: resolve => require(['@/views/common/Layout.vue'], resolve),
     meta: {
-      icon: 'home'
-    }
+      icon: 'home',
+      title: '首页'
+    },
+    children: [
+      {
+        path: 'profile',
+        name: 'profile',
+        component: resolve => require(['@/views/user/Profile.vue'], resolve),
+        meta: {
+          title: '个人中心'
+        }
+      }
+    ]
   },
   {
     path: '/login',

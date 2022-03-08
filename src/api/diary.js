@@ -24,9 +24,10 @@ export function updateDiary(data) {
   })
 }
 
-export function deleteDiary(id) {
+export function deleteDiary(data) {
   return request({
-    url: `system/diary/${id}`,
+    url: `report/diary/deleteById`,
     method: 'delete',
+    data,
   })
 }

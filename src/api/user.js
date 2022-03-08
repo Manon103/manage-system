@@ -54,3 +54,33 @@ export function authRole(data) {
     data,
   })
 }
+
+export function getProfile() {
+  return request({
+    url: `system/user/profile/getProfile`,
+    method: 'get',
+  })
+}
+
+export function updateProfile(data) {
+  return request({
+    url: `system/user/profile/getProfile`,
+    method: 'put',
+    data,
+  })
+}
+
+export function updatePassword(params) {
+  return request({
+    url: `/system/user/profile/updatePwd`,
+    method: 'put',
+    params,
+  })
+}
+
+export function getManagerList() {
+  return request({
+    url: `/system/user/getNames`,
+    method: 'get',
+  })
+}

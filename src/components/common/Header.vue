@@ -9,6 +9,7 @@
             <div class="user-header"></div>
         </a>
         <DropdownMenu slot="list">
+            <DropdownItem name="profile">个人中心</DropdownItem>
             <DropdownItem name="logOut">退出登录</DropdownItem>
         </DropdownMenu>
       </Dropdown>
@@ -35,6 +36,19 @@ export default {
         clearSession();
         this.$router.push({
           path: '/login'
+        })
+      }
+      if (name === 'profile') {
+        this.$store.commit('SET_ACTIVE_TAB', name);
+        const newItem = {
+          label: '个人中心',
+          path: name,
+        }
+        const tabList = this.$store.state.tabList;
+        // 更新tabList
+        this.$store.commit('SET_TABLIST', [...tabList, newItem])
+        this.$router.push({
+          name,
         })
       }
     }

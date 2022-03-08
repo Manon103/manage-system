@@ -153,6 +153,7 @@
 <script>
 import { getList, add, update, deleteMenu } from '@/api/menu';
 import IconSelect from '../../components/IconSelect.vue';
+import setPermission from '../../permission';
 export default {
   name: 'systemMenu',
   components: {
@@ -210,6 +211,7 @@ export default {
           required: true,
           message: "显示排序不能为空",
           trigger: "blur",
+          type: 'number'
         },
       ],
       path: [

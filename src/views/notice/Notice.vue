@@ -329,6 +329,7 @@ export default {
         await deleteNotice(ids);
         this.$Message.success('删除成功');
         this.getData();
+        this.selectedData = [];
       } catch (e) {
         this.$Message.error(e.msg);
       }

@@ -98,8 +98,18 @@
         <FormItem label="里程碑结束时间:" prop="milesEnd">
           <DatePicker :disabled="isView" v-model="milestoneForm.milesEnd" type="date"></DatePicker>
         </FormItem>
-        <FormItem label="里程碑负责人:" prop="milesManagers">
-          <Input :disabled="isView" v-model="milestoneForm.milesManagers"></Input>
+        <FormItem label="里程碑负责人:" prop="milesManager">
+          <Select
+            v-model="milestoneForm.milesManager"
+            :disabled="isView"
+          >
+            <Option
+              v-for="item in managerList"
+              :value="item.userName"
+              :key="item.userName"
+              >{{ item.nickName }}</Option
+            >
+          </Select>
         </FormItem>
         <FormItem label="里程碑内容:" prop="milesContent">
           <v-editor :editable="!isView" :defaultOpen="isView ? 'preview' : 'edit'" :content="milestoneForm.milesContent" @changeEditorContent="(content) => milestoneForm.milesContent=content"></v-editor>
@@ -116,6 +126,7 @@
 <script>
 import { getList, addMilestone, updateMilestone, deleteMilestone } from '@/api/milestone';
 import { getList as getProjectList } from '@/api/project';
+import { getManagerList } from '@/api/user';
 import MavonEditor from '../../components/MavonEditor.vue';
 
 export default {
@@ -132,7 +143,7 @@ export default {
       },
       {
         title: '项目名称',
-        key: 'projectName'
+        key: 'projectName',
       },
       {
         title: '开始时间',
@@ -161,6 +172,7 @@ export default {
         {
           required: true,
           message: "项目不能为空",
+          type: 'number',
           trigger: "blur",
         },
       ],
@@ -180,7 +192,7 @@ export default {
           type: 'date'
         },
       ],
-      milesManagers: [
+      milesManager: [
         {
           required: true,
           message: "负责人不能为空",
@@ -235,12 +247,13 @@ export default {
         projectId: '',
         milesBegin: '',
         milesEnd: '',
-        milesManagers: '',
+        milesManager: '',
         milesContent: '',
       },
       ruleValidate,
       opType: 'create',
       isView: false,
+      managerList: [],
     }
   },
   watch: {
@@ -255,6 +268,7 @@ export default {
   async created() {
     this.getData();
     this.getProjectInfo();
+    this.getManagerList();
   },
   methods: {
     handleOperationClick(key) {
@@ -280,8 +294,9 @@ export default {
       this.showModal = true;
       this.opType = 'create';
       this.modalTitle = '新增里程碑';
+      this.isView = false;
       this.$refs.milestoneForm.resetFields();
-      delete this.milestoneForm.milestoneId;
+      delete this.milestoneForm.id;
     },
     exportMilestone() {
       console.log('export');
@@ -329,7 +344,10 @@ export default {
       e.stopPropagation();
       this.opType = 'edit';
       this.showModal = true;
-      this.milestoneForm = {...data};
+      this.isView = false;
+      this.milestoneForm = {
+        ...data,
+      };
       this.modalTitle = '编辑里程碑';
     },
     async deleteMilestone(e, data) {
@@ -338,14 +356,15 @@ export default {
         title: '确认删除该项目吗',
         closable: true,
         onOk: async() => {
-          let ids = this.selectedData.map(item => item.milestoneId);
+          let ids = this.selectedData.map(item => item.id);
           if (data) {
-            ids = [data.milestoneId];
+            ids = [data.id];
           }
           try {
             await deleteMilestone(ids);
             this.$Message.success('删除成功');
             this.getData();
+            this.selectedData = [];
           } catch (e) {
             this.$Message.error(e.msg);
           }
@@ -362,6 +381,14 @@ export default {
           pageNum: 1,
         });
         this.projectList = res.rows;
+      } catch (e) {
+        this.$Message.error(e.msg);
+      }
+    },
+    async getManagerList() {
+      try {
+        const res = await getManagerList();
+        this.managerList = res.rows;
       } catch (e) {
         this.$Message.error(e.msg);
       }

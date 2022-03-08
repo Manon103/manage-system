@@ -485,6 +485,7 @@ export default {
         await deleteUser(ids);
         this.$Message.success("操作成功");
         this.getData();
+        this.selectedData = [];
       } catch (e) {
         this.$Message.error(e.msg);
       }
