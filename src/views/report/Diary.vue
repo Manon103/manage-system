@@ -35,7 +35,7 @@
         @on-row-click="showDetail"
         @on-selection-change="handleTableSelect">
         <template slot-scope="{ row }" slot="action">
-            <a class="mr-10" v-permission="'report:diary:edit'" @click="editReport(e, row)">编辑</a>
+            <a class="mr-10" v-permission="'report:diary:edit'" @click="(e) => editReport(e, row)">编辑</a>
             <a class="error-link" v-permission="'report:diary:delete'" @click="(e) => deleteReport(e, row)">删除</a>
         </template>
       </Table>
@@ -105,7 +105,7 @@
           </Select>
         </FormItem>
         <FormItem label="填写日期:" prop="writeDate">
-          <DatePicker :disabled="isView" type="date" v-model="diaryForm.writeDate"></DatePicker>
+          <DatePicker :disabled="isView" type="date" @on-change="handleDateChange" v-model="diaryForm.writeDate"></DatePicker>
         </FormItem>
         <FormItem label="周报内容:" prop="content">
           <v-editor :editable="!isView" :defaultOpen="isView ? 'preview' : 'edit'" :content="diaryForm.content" @changeEditorContent="handleContentChange"></v-editor>
@@ -187,14 +187,6 @@ export default {
           message: "里程碑不能为空",
           type: 'number',
           trigger: "blur",
-        },
-      ],
-      writeDate: [
-        {
-          required: true,
-          message: "填写日期不能为空",
-          trigger: "blur",
-          type: 'date'
         },
       ],
       content: [
@@ -379,6 +371,7 @@ export default {
         pageSize: this.searchParams.pageSize,
         createBy: this.userName,
       };
+      this.getData();
     },
     handlePageSizeChange(size) {
       this.searchParams.pageSize = size;
@@ -413,13 +406,16 @@ export default {
       this.selectedData = selections;
     },
     handleProjectSelect(val) {
-      this.diaryForm.projectName = val.label;
+      val && (this.diaryForm.projectName = val.label);
     },
     async showDetail(data) {
       this.modalTitle = '周报详情',
       this.showModal = true;
       this.isView = true;
       this.diaryForm = {...data};
+    },
+    handleDateChange(val) {
+      this.diaryForm.writeDate = val;
     }
   }
 }

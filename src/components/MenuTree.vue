@@ -11,6 +11,8 @@
 
 <script>
 import { getMenuTree, getDeptTree } from '@/api/role';
+import { getList as getMenuList } from '@/api/menu';
+import { getList as getDeptList } from '@/api/dept';
 import Vue from 'vue';
 export default {
   name: 'vTree',
@@ -42,6 +44,7 @@ export default {
     return {
       menuList: [],
       selectedIds: [],
+      flatData: [],
     }
   },
   created() {
@@ -79,6 +82,8 @@ export default {
     async getTreeData() {
       try {
         const res = this.type === 'menu' ? await getMenuTree() : await getDeptTree();
+        const flatRes = this.type === 'menu' ? await getMenuList() : await getDeptList();
+        this.flatData = flatRes.data;
         if (this.expand) {
           res.data.forEach(node => {
             this.setExpand(node);
@@ -92,6 +97,12 @@ export default {
     },
     getSelectedNodes(nodes) {
       this.selectedIds = nodes.map(item => item.id);
+      nodes.forEach(node => {
+        const data = this.flatData.find(item => item.menuId === node.id);
+        if (!this.selectedIds.includes(data.parentId)) {
+          this.selectedIds.push(data.parentId);
+        }
+      })
       this.$emit('handleIdChange', this.selectedIds);
     },
     handleNodeSelect(node) {

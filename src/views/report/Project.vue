@@ -134,19 +134,19 @@
           @on-selection-change="handleMilestoneSelect"
           :data="projectFrom.milestones">
           <template slot-scope="{ row, index }" slot="milesManager">
-            <span v-if="isView">{{row['milesManager']}}}</span>
-            <Input v-model="projectFrom.milestones[index]['milesManager']"></Input>
+            <span v-if="isView">{{row['milesManager']}}</span>
+            <Input v-else v-model="projectFrom.milestones[index]['milesManager']"></Input>
           </template>
           <template slot-scope="{ row, index }" slot="milesBegin">
-            <span v-if="isView">{{row['milesBegin']}}}</span>
+            <span v-if="isView">{{row['milesBegin']}}</span>
             <DatePicker v-else v-model="projectFrom.milestones[index]['milesBegin']" type="date"></DatePicker>
           </template>
           <template slot-scope="{ row, index }" slot="milesEnd">
-            <span v-if="isView">{{row['milesEnd']}}}</span>
+            <span v-if="isView">{{row['milesEnd']}}</span>
             <DatePicker v-else v-model="projectFrom.milestones[index]['milesEnd']" type="date"></DatePicker>
           </template>
           <template slot-scope="{ row, index }" slot="milesContent">
-            <span v-if="isView">{{row['milesContent']}}}</span>
+            <span v-if="isView">{{row['milesContent']}}</span>
             <Input v-else type="textarea" :autosize="true" v-model="projectFrom.milestones[index]['milesContent']"></Input>
           </template>
         </Table>

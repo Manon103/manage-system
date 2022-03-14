@@ -55,7 +55,7 @@
         </template>
         <template slot-scope="{ row }" slot="action">
             <a class="mr-10" v-permission="'system:milestone:edit'" @click="(e) => editMilestone(e, row)">编辑</a>
-            <a class="error-link" @click="(e) => deleteMilestone(e, row)">删除</a>
+            <a class="error-link" v-permission="'system:milestone:remove'" @click="(e) => deleteMilestone(e, row)">删除</a>
         </template>
       </Table>
        <Page 

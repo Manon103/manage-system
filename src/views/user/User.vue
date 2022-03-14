@@ -561,7 +561,7 @@ export default {
         this.flatData = res.data;
         this.deptData = initDeptTree(res.data);
       } catch (e) {
-        console.log(e);
+        this.$Message.error(e.msg);
       }
     },
     async getModalInfo() {
