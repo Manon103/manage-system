@@ -152,7 +152,7 @@ export default {
       },
       {
         title: '填写人',
-        key: 'userName'
+        key: 'createBy'
       },
       {
         title: '第几周/年',
