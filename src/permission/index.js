@@ -9,13 +9,14 @@ export default async function setPermission() {
   // 目前模拟数据为全部路由，后续从接口获取
   permission.forEach(item => {
     // 把component替换为懒加载
-    // item.component = () => import('@/views/common/Layout.vue');
-    item.component = { render: h => h('router-view') };
+    item.component = () => import('@/views/common/Layout.vue');
+    // item.component = { render: h => h('router-view') };
     let { children } = item;
     const recursionChildren = (children, parent) => {
       if (children && children.length) {
         children.forEach(child => {
           if (!child.children) {
+            child.meta.component = child.component;
             // 写在component回掉中会找不到module，于是先引入
             const comp = import(`@/views/${child.component}.vue`);
             child.component = () => comp;
@@ -29,9 +30,9 @@ export default async function setPermission() {
       }
     }
     recursionChildren(children, item);
-    router.addRoute('home', item);
+    router.addRoute(item);
   })
-  // router.addRoute(permission);
+  // router.addRoutes(permission);
   getMenuPermission();
   // 全部路由
   // console.log(router.getRoutes());
