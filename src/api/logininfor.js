@@ -2,7 +2,7 @@ import request from "./request";
 
 export function getList(params) {
   return request({
-    url: 'monitor/operlog/list',
+    url: 'monitor/logininfor/list',
     method: 'get',
     params,
   })
@@ -10,15 +10,14 @@ export function getList(params) {
 
 export function clearLogInfo() {
   return request({
-    url: 'monitor/operlog/clean',
+    url: 'monitor/logininfor/clean',
     method: 'delete',
-    data,
   })
 }
 
 export function deleteLogInfo(id) {
   return request({
-    url: `monitor/operlog/${id}`,
+    url: `monitor/logininfor/${id}`,
     method: 'delete',
   })
 }

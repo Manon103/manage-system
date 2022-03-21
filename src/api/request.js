@@ -14,7 +14,7 @@ const request = axios.create({
 // 发生请求前的拦截
 request.interceptors.request.use(config => {
   // 一般情况下，登录不需要携带token
-  if (!config.url.includes('login')) {
+  if (!config.url.includes('login') || config.url.includes('logininfor')) {
     // 设置请求头
     config.headers['Authorization'] = getSession('token');
   }

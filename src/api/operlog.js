@@ -12,7 +12,6 @@ export function clearOperlog() {
   return request({
     url: 'monitor/operlog/clean',
     method: 'delete',
-    data,
   })
 }
 

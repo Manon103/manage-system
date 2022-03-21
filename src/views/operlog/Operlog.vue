@@ -344,13 +344,6 @@ export default {
       }
       this.loading = false;
     },
-    addOperlog() {
-      this.showModal = true;
-      this.opType = 'create';
-      this.modalTitle = '新增岗位';
-      this.$refs.operlogForm.resetFields();
-      delete this.operlogForm.operlogId;
-    },
     exportOperlog() {
       console.log('export');
     },
@@ -371,27 +364,6 @@ export default {
     handlePageChange(page) {
       this.searchParams.pageNum = page;
       this.getData();
-    },
-    handleModalConfirmCancel() {
-      this.showModal = false;
-    },
-    handleModalConfirm() {
-      this.$refs["operlogForm"].validate(async (valid) => {
-        if (valid) {
-          const params = {
-            ...this.operlogForm,
-            status: this.operlogForm.status ? '0' : '1',
-          };
-          try {
-            this.opType === "create" ? await addOperlog(params) : await updateOperlog(params);
-            this.$Message.success("操作成功");
-            this.showModal = false;
-            this.getData();
-          } catch (e) {
-            this.$Message.error(e.msg);
-          }
-        }
-      });
     },
     viewOperlog(data) {
       this.curLog = {
