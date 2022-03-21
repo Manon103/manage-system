@@ -62,14 +62,6 @@ export function getProfile() {
   })
 }
 
-export function updateProfile(data) {
-  return request({
-    url: `system/user/profile/getProfile`,
-    method: 'put',
-    data,
-  })
-}
-
 export function updatePassword(params) {
   return request({
     url: `/system/user/profile/updatePwd`,
@@ -82,5 +74,13 @@ export function getManagerList() {
   return request({
     url: `/system/user/getNames`,
     method: 'get',
+  })
+}
+
+export function updateUserInfo(data) {
+  return request({
+    url: `/system/user/profile/modify`,
+    method: 'put',
+    data,
   })
 }

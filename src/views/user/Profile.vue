@@ -111,7 +111,7 @@
 
 <script>
 import { clearSession } from '../../utils/storage';
-import { getProfile, updateProfile, updatePassword } from "@/api/user";
+import { getProfile, updatePassword, updateUserInfo } from "@/api/user";
 export default {
   name: "profile",
   data() {
@@ -236,7 +236,7 @@ export default {
       this.$refs["basicForm"].validate(async (valid) => {
         if (valid) {
           try {
-            await updateProfile(this.basicForm);
+            await updateUserInfo(this.basicForm);
             this.$Message.success("操作成功");
             this.getUserInfo();
           } catch (e) {
