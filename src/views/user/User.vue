@@ -470,6 +470,7 @@ export default {
       this.showModal = true;
       this.modalTitle = '新建用户';
       this.opType = 'create';
+      delete this.userForm.userId;
       this.$refs['userForm'].resetFields();
     },
     exportUser() {},
