@@ -217,13 +217,13 @@ export default {
           key: 'add',
           permission: 'system:milestone:add'
         },
-        {
-          type: 'warning',
-          icon: 'md-download',
-          label: '导出',
-          key: 'export',
-          permission: 'system:milestone:export'
-        },
+        // {
+        //   type: 'warning',
+        //   icon: 'md-download',
+        //   label: '导出',
+        //   key: 'export',
+        //   permission: 'system:milestone:export'
+        // },
         {
           type: 'error',
           icon: 'md-close',
@@ -259,7 +259,7 @@ export default {
   watch: {
     selectedData: {
       handler(val) {
-        this.$set(this.operationBtns[2], 'disabled', !val.length);
+        this.$set(this.operationBtns[1], 'disabled', !val.length);
       },
       deep: true,
       immediate: true,

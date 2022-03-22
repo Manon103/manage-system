@@ -335,20 +335,13 @@ export default {
           key: "delete",
           permission: "system:user:remove",
         },
-        {
-          type: "warning",
-          icon: "md-cloud-upload",
-          label: "导入",
-          key: "import",
-          permission: "system:user:import",
-        },
-        {
-          type: "warning",
-          icon: "md-cloud-download",
-          label: "导出",
-          key: "export",
-          permission: "system:user:export",
-        },
+        // {
+        //   type: "warning",
+        //   icon: "md-cloud-download",
+        //   label: "导出",
+        //   key: "export",
+        //   permission: "system:user:export",
+        // },
       ],
       searchParams: {
         userName: "",

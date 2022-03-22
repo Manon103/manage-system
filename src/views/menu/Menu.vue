@@ -235,13 +235,13 @@ export default {
           key: 'add',
           permission: 'system:post:add'
         },
-        {
-          type: 'warning',
-          icon: 'md-download',
-          label: '导出',
-          key: 'export',
-          permission: 'system:post:export'
-        },
+        // {
+        //   type: 'warning',
+        //   icon: 'md-download',
+        //   label: '导出',
+        //   key: 'export',
+        //   permission: 'system:post:export'
+        // },
         {
           type: 'error',
           icon: 'md-close',

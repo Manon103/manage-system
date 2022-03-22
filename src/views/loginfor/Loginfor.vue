@@ -131,13 +131,13 @@ export default {
           key: 'clear',
           permission: 'monitor:logininfor:remove'
         },
-        {
-          type: 'warning',
-          icon: 'md-download',
-          label: '导出',
-          key: 'export',
-          permission: 'monitor:logininfor:export'
-        },
+        // {
+        //   type: 'warning',
+        //   icon: 'md-download',
+        //   label: '导出',
+        //   key: 'export',
+        //   permission: 'monitor:logininfor:export'
+        // },
         {
           type: 'error',
           icon: 'md-close',
@@ -166,7 +166,7 @@ export default {
   watch: {
     selectedData: {
       handler(val) {
-        this.$set(this.operationBtns[2], 'disabled', !val.length);
+        this.$set(this.operationBtns[1], 'disabled', !val.length);
       },
       deep: true,
       immediate: true,
