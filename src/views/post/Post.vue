@@ -89,7 +89,7 @@
         <FormItem label="岗位顺序:" prop="postSort">
           <Input v-model="postForm.postSort"></Input>
         </FormItem>
-        <FormItem label="部门状态:" prop="status">
+        <FormItem label="岗位状态:" prop="status">
           <i-switch v-model="postForm.status"> </i-switch>
         </FormItem>
         <FormItem label="备注:" prop="remark">

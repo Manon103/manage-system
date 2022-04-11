@@ -18,7 +18,7 @@ export function addDiary(data) {
 
 export function updateDiary(data) {
   return request({
-    url: 'report/diary',
+    url: 'report/diary/edit',
     method: 'put',
     data,
   })
