@@ -112,7 +112,7 @@
         </FormItem>
       </Form>
       <template slot="footer">
-        <Button type="text" @click="showModal=false">取消</Button>
+        <Button v-if="!isView" type="text" @click="showModal=false">取消</Button>
         <Button type="primary" @click="handleModalConfirm">确定</Button>
       </template>
     </Modal>
@@ -382,6 +382,10 @@ export default {
       this.getData();
     },
     handleModalConfirm() {
+      if (this.isView) {
+        this.showModal = false;
+        return;
+      }
       this.$refs["diaryForm"].validate(async (valid) => {
         if (valid) {
           try {

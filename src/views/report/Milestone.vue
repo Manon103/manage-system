@@ -116,7 +116,7 @@
         </FormItem>
       </Form>
       <template slot="footer">
-        <Button type="text" @click="handleModalConfirmCancel">取消</Button>
+        <Button v-if="!isView" type="text" @click="handleModalConfirmCancel">取消</Button>
         <Button type="primary" @click="handleModalConfirm">确定</Button>
       </template>
     </Modal>
@@ -323,6 +323,10 @@ export default {
       this.showModal = false;
     },
     handleModalConfirm() {
+      if (this.isView) {
+        this.showModal = false;
+        return;
+      }
       this.$refs["milestoneForm"].validate(async (valid) => {
         if (valid) {
           const params = {
